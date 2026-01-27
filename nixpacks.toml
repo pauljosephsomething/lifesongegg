@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ["python311", "timidity"]
+nixPkgs = ["python311", "python311Packages.pip", "timidity"]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = ["python3 -m pip install -r requirements.txt"]
 
 [start]
 cmd = "cd backend && python3 server.py"
