@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0c1c2a">
+    <meta name="description" content="Transform your DNA sequence into unique, personalized music">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DNA Lifesong">
+
+    <title>DNA Lifesong Studio</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Favicon and Apple Touch Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/icon-16.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Cosmic Background Effects -->
+    <div class="cosmic-bg"></div>
+    <canvas id="particles"></canvas>
+
+    <!-- Main App Container -->
+    <main class="app-container">
+        <!-- Header (shown on mobile, hidden on desktop where bg image has title) -->
+        <header class="app-header">
+            <h1>DNA LIFESONG STUDIO</h1>
+            <p>A musical translation of life itself</p>
+        </header>
+
+        <!-- Two-Panel Layout -->
+        <div class="panels">
+            <!-- STEP 1: Generate DNA Music -->
+            <section class="panel" id="step1">
+                <h2 class="panel-title">DNA Blueprint</h2>
+
+                <div class="field-group">
+                    <label class="field-label" for="dnaInput">DNA Sequence</label>
+                    <textarea
+                        id="dnaInput"
+                        class="dna-input"
+                        rows="3"
+                        placeholder="Paste your DNA sequence here (A, T, G, C)..."
+                        spellcheck="false"
+                    ></textarea>
+                    <div class="char-count"><span id="baseCount">0</span> bases</div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn-icon" id="loadFileBtn" title="Load from file">
+                        <span class="btn-emoji">📁</span> Load
+                    </button>
+                    <button class="btn-icon" id="randomBtn" title="Generate random realistic DNA">
+                        <span class="btn-emoji">🎲</span> Random
+                    </button>
+                    <button class="btn-icon" id="saveBtn" title="Save sequence">
+                        <span class="btn-emoji">💾</span> Save
+                    </button>
+                    <button class="btn-icon" id="clearBtn" title="Clear">
+                        <span class="btn-emoji">🗑️</span> Clear
+                    </button>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Duration: <span id="durationValue">45</span> seconds</label>
+                    <input type="range" id="durationSlider" class="slider" min="15" max="120" value="45">
+                </div>
+
+                <div class="action-row">
+                    <button class="btn-primary" id="generateBtn">
+                        <span class="btn-emoji">⚡</span> Generate Lifesong
+                    </button>
+                    <button class="btn-secondary" id="playOriginalBtn" disabled>
+                        <span class="btn-emoji">▶️</span> Play
+                    </button>
+                </div>
+
+                <div id="analysisResult" class="result-box hidden">
+                    <div class="result-title">Analysis</div>
+                    <div id="analysisContent"></div>
+                </div>
+            </section>
+
+            <!-- STEP 2: Create AI Cover -->
+            <section class="panel" id="step2">
+                <h2 class="panel-title">Step 2: Create AI Cover</h2>
+
+                <div id="step2Status" class="status-indicator pending">
+                    <span class="status-icon">⏸</span>
+                    <span class="status-text">Generate music first</span>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Select Mood</label>
+                    <div class="mood-orbs">
+                        <button class="orb-btn" data-mood="meditative">
+                            <div class="orb orb-blue"></div>
+                            <span class="orb-label">Meditative</span>
+                        </button>
+                        <button class="orb-btn" data-mood="atmospheric">
+                            <div class="orb orb-teal"></div>
+                            <span class="orb-label">Atmospheric</span>
+                        </button>
+                        <button class="orb-btn" data-mood="energetic">
+                            <div class="orb orb-gold"></div>
+                            <span class="orb-label">Energetic</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="lyricsInput">Lyrics (optional - leave empty for instrumental)</label>
+                    <textarea
+                        id="lyricsInput"
+                        class="lyrics-input"
+                        rows="3"
+                        placeholder="Enter your lyrics here..."
+                    ></textarea>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label">Vocals</label>
+                    <div class="vocal-orbs">
+                        <button class="vocal-btn selected" data-vocal="none">
+                            <div class="vocal-orb vocal-orb-none"></div>
+                            <span class="vocal-label">No Vocal</span>
+                        </button>
+                        <button class="vocal-btn" data-vocal="female">
+                            <div class="vocal-orb vocal-orb-female"></div>
+                            <span class="vocal-label">Female</span>
+                        </button>
+                        <button class="vocal-btn" data-vocal="male">
+                            <div class="vocal-orb vocal-orb-male"></div>
+                            <span class="vocal-label">Male</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label subtle">Generated Prompt (auto-generated)</label>
+                    <div id="promptPreview" class="prompt-preview">[instrumental]</div>
+                </div>
+
+                <div class="action-row">
+                    <button class="btn-primary" id="createCoverBtn" disabled>
+                        <span class="btn-emoji">🎨</span> Create Cover
+                    </button>
+                    <button class="btn-danger" id="cancelBtn" disabled>
+                        <span class="btn-emoji">🛑</span> Cancel
+                    </button>
+                    <button class="btn-secondary" id="playCoverBtn" disabled>
+                        <span class="btn-emoji">▶️</span> Play Cover
+                    </button>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText" class="progress-text"></div>
+                </div>
+
+                <div id="statusLog" class="status-log"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <span class="output-path">Output: ~/Desktop/DNA_Lifesong</span>
+        <span class="version">v3.3.0</span>
+        <button class="btn-settings" id="settingsBtn">
+            <span class="btn-emoji">⚙️</span> Settings
+        </button>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h2 class="modal-title">⚙️ Settings</h2>
+
+            <div class="field-group">
+                <label class="field-label" for="userKeyInput">Access Key</label>
+                <input
+                    type="password"
+                    id="userKeyInput"
+                    class="text-input"
+                    placeholder="Enter your access key"
+                >
+                <p class="field-hint">Enter the access key provided to you.</p>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-primary" id="saveSettingsBtn">Save</button>
+                <button class="btn-secondary" id="closeSettingsBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Hidden file input for loading DNA files -->
+    <input type="file" id="fileInput" accept=".txt,.fasta,.fa" class="hidden">
+
+    <!-- JavaScript Modules -->
+    <script src="js/dna-engine.js"></script>
+    <script src="js/audio-player.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Register Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
