@@ -3,6 +3,7 @@ DNA Lifesong Studio - MusicAPI Client
 Handles communication with MusicAPI for AI cover generation
 """
 
+import os
 import requests
 
 
@@ -10,14 +11,15 @@ class MusicAPIClient:
     """Client for MusicAPI AI music generation"""
 
     BASE_URL = "https://api.musicapi.ai/api/v1/sonic"
-    CATBOX_URL = "https://catbox.moe/user/api.php"
+    FILE_IO_URL = "https://file.io"
+    LITTERBOX_URL = "https://litterbox.catbox.moe/resources/internals/api.php"
 
     TIMEOUT_SHORT = 60   # For quick API calls
     TIMEOUT_LONG = 300   # For file uploads (5 minutes)
 
     def upload(self, file_path, api_key):
         """
-        Upload audio file to Catbox and register with MusicAPI
+        Upload audio file to file hosting and register with MusicAPI
 
         Args:
             file_path: Path to the audio file
@@ -27,22 +29,18 @@ class MusicAPIClient:
             dict with clip_id on success, error on failure
         """
         try:
-            # Step 1: Upload to Catbox (free file hosting)
-            with open(file_path, 'rb') as f:
-                response = requests.post(
-                    self.CATBOX_URL,
-                    data={'reqtype': 'fileupload'},
-                    files={'fileToUpload': f},
-                    timeout=self.TIMEOUT_LONG
-                )
+            # Try Litterbox first (temporary file hosting, 24h expiry)
+            file_url = self._upload_to_litterbox(file_path)
 
-            if response.status_code != 200:
-                return {'error': f'Catbox upload failed: HTTP {response.status_code}'}
+            # If Litterbox fails, try file.io
+            if not file_url:
+                file_url = self._upload_to_fileio(file_path)
 
-            catbox_url = response.text.strip()
+            if not file_url:
+                return {'error': 'All file upload services failed'}
 
-            if not catbox_url.startswith('http'):
-                return {'error': f'Invalid Catbox response: {catbox_url[:100]}'}
+            if not file_url.startswith('http'):
+                return {'error': f'Invalid upload response: {file_url[:100]}'}
 
             # Step 2: Register URL with MusicAPI
             response = requests.post(
@@ -51,7 +49,7 @@ class MusicAPIClient:
                     'Authorization': f'Bearer {api_key}',
                     'Content-Type': 'application/json'
                 },
-                json={'url': catbox_url},
+                json={'url': file_url},
                 timeout=self.TIMEOUT_SHORT
             )
 
@@ -67,6 +65,43 @@ class MusicAPIClient:
             return {'error': f'Network error: {str(e)}'}
         except Exception as e:
             return {'error': str(e)}
+
+    def _upload_to_litterbox(self, file_path):
+        """Upload to Litterbox (temporary hosting, 24h)"""
+        try:
+            with open(file_path, 'rb') as f:
+                response = requests.post(
+                    self.LITTERBOX_URL,
+                    data={'reqtype': 'fileupload', 'time': '24h'},
+                    files={'fileToUpload': (os.path.basename(file_path), f, 'audio/mpeg')},
+                    timeout=self.TIMEOUT_LONG
+                )
+            if response.status_code == 200:
+                url = response.text.strip()
+                if url.startswith('http'):
+                    return url
+            return None
+        except Exception as e:
+            print(f"Litterbox upload failed: {e}")
+            return None
+
+    def _upload_to_fileio(self, file_path):
+        """Upload to file.io (temporary hosting)"""
+        try:
+            with open(file_path, 'rb') as f:
+                response = requests.post(
+                    self.FILE_IO_URL,
+                    files={'file': (os.path.basename(file_path), f, 'audio/mpeg')},
+                    timeout=self.TIMEOUT_LONG
+                )
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success') and data.get('link'):
+                    return data['link']
+            return None
+        except Exception as e:
+            print(f"file.io upload failed: {e}")
+            return None
 
     def create_cover(self, clip_id, prompt, tags, api_key):
         """
