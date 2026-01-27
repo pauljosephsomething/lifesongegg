@@ -2,7 +2,7 @@
 nixPkgs = ["python311Full", "timidity"]
 
 [phases.install]
-cmds = ["python3 -m ensurepip", "python3 -m pip install -r requirements.txt"]
+cmds = ["python3 -m venv /opt/venv", "/opt/venv/bin/pip install -r requirements.txt"]
 
 [start]
-cmd = "cd backend && python3 server.py"
+cmd = "cd backend && /opt/venv/bin/python3 server.py"
