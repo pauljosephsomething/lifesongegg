@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python311Full", "timidity", "lame"]
+nixPkgs = ["python311Full", "timidity", "lame", "freepats"]
 
 [phases.install]
 cmds = ["python3 -m venv /opt/venv", "/opt/venv/bin/pip install -r requirements.txt"]
