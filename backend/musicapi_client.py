@@ -13,7 +13,7 @@ class MusicAPIClient:
     CATBOX_URL = "https://catbox.moe/user/api.php"
 
     TIMEOUT_SHORT = 60   # For quick API calls
-    TIMEOUT_LONG = 120   # For file uploads
+    TIMEOUT_LONG = 300   # For file uploads (5 minutes)
 
     def upload(self, file_path, api_key):
         """

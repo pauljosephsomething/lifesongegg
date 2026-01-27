@@ -11,7 +11,7 @@ const APIClient = {
     userKey: null,
 
     // Request timeout (ms)
-    timeout: 120000,
+    timeout: 300000,
 
     /**
      * Set the base URL for API calls
