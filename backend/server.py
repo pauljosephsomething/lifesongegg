@@ -190,16 +190,19 @@ def api_generate():
 
 
 @app.route('/api/audio/<filename>')
-@require_user_key
 @rate_limited
 def api_audio(filename):
     """Serve audio files from output directory"""
     try:
         file_path = os.path.join(OUTPUT_DIR, filename)
+        print(f"Serving audio: {file_path}, exists: {os.path.exists(file_path)}")
         if os.path.exists(file_path):
             return send_file(file_path, mimetype='audio/mpeg')
         else:
-            return jsonify({'error': 'File not found'}), 404
+            # List files in output dir for debugging
+            files = os.listdir(OUTPUT_DIR) if os.path.exists(OUTPUT_DIR) else []
+            print(f"Available files: {files}")
+            return jsonify({'error': 'File not found', 'requested': filename, 'available': files[:10]}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
