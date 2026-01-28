@@ -18,7 +18,12 @@ from musicapi_client import MusicAPIClient
 
 # Configuration
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'frontend')
-OUTPUT_DIR = os.path.expanduser("~/Desktop/DNA_Lifesong")
+
+# Use /tmp on Railway, Desktop folder locally
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    OUTPUT_DIR = "/tmp/DNA_Lifesong"
+else:
+    OUTPUT_DIR = os.path.expanduser("~/Desktop/DNA_Lifesong")
 
 # Version
 VERSION = "3.3.0"
