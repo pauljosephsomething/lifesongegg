@@ -46,6 +46,7 @@ const App = {
             durationValue: document.getElementById('durationValue'),
             generateBtn: document.getElementById('generateBtn'),
             playOriginalBtn: document.getElementById('playOriginalBtn'),
+            downloadOriginalBtn: document.getElementById('downloadOriginalBtn'),
             analysisResult: document.getElementById('analysisResult'),
             analysisContent: document.getElementById('analysisContent'),
 
@@ -98,6 +99,9 @@ const App = {
 
         // Play original button
         this.elements.playOriginalBtn.addEventListener('click', () => this.togglePlayOriginal());
+
+        // Download original button
+        this.elements.downloadOriginalBtn.addEventListener('click', () => this.downloadOriginal());
 
         // Mood orbs
         this.elements.moodOrbs.forEach(orb => {
@@ -408,6 +412,7 @@ const App = {
 
                 // Enable buttons
                 this.elements.playOriginalBtn.disabled = false;
+                this.elements.downloadOriginalBtn.disabled = false;
                 this.elements.createCoverBtn.disabled = false;
 
                 // Update Step 2 status
@@ -433,6 +438,26 @@ const App = {
      */
     togglePlayOriginal() {
         AudioPlayer.toggleOriginal();
+    },
+
+    /**
+     * Download the original MP3
+     */
+    downloadOriginal() {
+        if (!this.state.mp3Filename) {
+            this.showToast('No audio file to download', 'error');
+            return;
+        }
+
+        // Create a download link
+        const link = document.createElement('a');
+        link.href = `/api/audio/${encodeURIComponent(this.state.mp3Filename)}`;
+        link.download = this.state.mp3Filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        this.showToast('Downloading...', 'success');
     },
 
     /**
