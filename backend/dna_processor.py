@@ -154,27 +154,57 @@ class DNAProcessor:
     # ==================== LAYER 4: BASE POSITION MAPPING ====================
 
     # First base → scale degree (which note in the scale)
+    # Now uses all 7 scale degrees based on codon context
     FIRST_BASE_DEGREE = {
         'A': 0,  # Root
-        'T': 2,  # Third
+        'T': 3,  # Fourth
         'G': 4,  # Fifth
-        'C': 5,  # Sixth
+        'C': 6,  # Seventh
     }
 
-    # Second base → octave modifier
+    # Extended degree mapping based on second base context
+    # This creates 16 possible scale degree combinations
+    CODON_DEGREE_MODIFIER = {
+        'AA': 0, 'AT': 1, 'AG': 2, 'AC': 3,
+        'TA': 1, 'TT': 2, 'TG': 3, 'TC': 4,
+        'GA': 2, 'GT': 3, 'GG': 4, 'GC': 5,
+        'CA': 3, 'CT': 4, 'CG': 5, 'CC': 6,
+    }
+
+    # Second base → octave modifier (more variation)
     SECOND_BASE_OCTAVE = {
         'A': -12,  # Lower octave
-        'T': 0,    # Middle
+        'T': -5,   # Lower fifth (creates counterpoint)
         'G': 0,    # Middle
         'C': 12,   # Higher octave
     }
 
-    # Third base → duration modifier (multiplier)
+    # Third base → duration modifier (multiplier) - more rhythmic variety
     THIRD_BASE_DURATION = {
-        'A': 1.5,  # Longer (dotted)
-        'T': 1.0,  # Normal
-        'G': 0.75, # Slightly short
-        'C': 0.5,  # Staccato
+        'A': 2.0,   # Long (whole feel)
+        'T': 1.0,   # Normal
+        'G': 0.66,  # Triplet feel
+        'C': 0.5,   # Staccato
+    }
+
+    # Rhythm patterns based on codon third position combinations
+    RHYTHM_PATTERNS = {
+        'AA': [2.0, 1.0],           # Long-short
+        'AT': [1.0, 1.0, 1.0],      # Even
+        'AG': [0.66, 0.66, 0.66],   # Triplets
+        'AC': [0.5, 0.5, 1.0],      # Short-short-long
+        'TA': [1.5, 0.5],           # Dotted
+        'TT': [1.0, 0.5, 0.5],      # Long-short-short
+        'TG': [0.75, 0.75, 0.5],    # Swing feel
+        'TC': [0.5, 1.5],           # Pickup
+        'GA': [1.0, 0.66, 0.66, 0.66],  # Quarter + triplet
+        'GT': [0.5, 0.5, 0.5, 0.5], # Running 8ths
+        'GG': [1.0, 1.0],           # Half notes
+        'GC': [0.5, 1.0, 0.5],      # Syncopated
+        'CA': [2.0],                # Whole note
+        'CT': [0.33, 0.33, 0.33, 1.0],  # Fast triplet + hold
+        'CG': [0.75, 0.25, 1.0],    # Dotted 8th + 16th
+        'CC': [0.25, 0.25, 0.5, 1.0],  # 16ths to quarter
     }
 
     # ==================== INSTRUMENTS ====================
@@ -184,6 +214,34 @@ class DNAProcessor:
         'harmony': 48,     # String Ensemble - rich
         'bass': 33,        # Acoustic Bass - grounding
         'pad': 89,         # Pad (warm) - atmosphere
+    }
+
+    # Instrument variations based on GC content
+    INSTRUMENT_SETS = {
+        'low_gc': {    # AT-rich: warmer, organic
+            'melody': 71,   # Clarinet
+            'harmony': 46,  # Orchestral Harp
+            'bass': 33,     # Acoustic Bass
+            'pad': 92,      # Pad (bowed)
+        },
+        'mid_gc': {    # Balanced: default ethereal
+            'melody': 73,   # Flute
+            'harmony': 48,  # String Ensemble
+            'bass': 33,     # Acoustic Bass
+            'pad': 89,      # Pad (warm)
+        },
+        'high_gc': {   # GC-rich: brighter, crystalline
+            'melody': 79,   # Ocarina
+            'harmony': 88,  # Pad (new age)
+            'bass': 39,     # Synth Bass 1
+            'pad': 91,      # Pad (space voice)
+        },
+        'very_high_gc': {  # Very GC-rich: cosmic
+            'melody': 80,   # Lead (square)
+            'harmony': 95,  # Pad (sweep)
+            'bass': 38,     # Synth Bass 1
+            'pad': 94,      # Pad (halo)
+        }
     }
 
     # ==================== ANALYSIS METHODS ====================
@@ -605,6 +663,17 @@ class DNAProcessor:
         scale = analysis['scale']
         tempo = analysis['tempo']
         codons = analysis['codons']
+        gc = analysis['gc']
+
+        # Select instrument set based on GC content
+        if gc < 35:
+            instruments = self.INSTRUMENT_SETS['low_gc']
+        elif gc < 50:
+            instruments = self.INSTRUMENT_SETS['mid_gc']
+        elif gc < 65:
+            instruments = self.INSTRUMENT_SETS['high_gc']
+        else:
+            instruments = self.INSTRUMENT_SETS['very_high_gc']
 
         # Find structural codons (start/stop)
         structure = self._find_structure_codons(codons)
@@ -613,10 +682,10 @@ class DNAProcessor:
         midi = MIDIFile(4)
 
         track_config = [
-            ('Melody', self.INSTRUMENTS['melody'], 0),
-            ('Harmony', self.INSTRUMENTS['harmony'], 1),
-            ('Bass', self.INSTRUMENTS['bass'], 2),
-            ('Pad', self.INSTRUMENTS['pad'], 3),
+            ('Melody', instruments['melody'], 0),
+            ('Harmony', instruments['harmony'], 1),
+            ('Bass', instruments['bass'], 2),
+            ('Pad', instruments['pad'], 3),
         ]
 
         for track, (name, instrument, channel) in enumerate(track_config):
@@ -711,8 +780,9 @@ class DNAProcessor:
             # Layer 4: Derive note from base positions
             base1, base2, base3 = codon[0], codon[1], codon[2]
 
-            # First base → scale degree
-            degree = self.FIRST_BASE_DEGREE.get(base1, 0)
+            # Extended degree: use first two bases for more melodic variety
+            two_base = base1 + base2
+            degree = self.CODON_DEGREE_MODIFIER.get(two_base, self.FIRST_BASE_DEGREE.get(base1, 0))
             if degree < len(scale):
                 pitch_offset = scale[degree]
             else:
@@ -721,8 +791,9 @@ class DNAProcessor:
             # Second base → octave
             octave_mod = self.SECOND_BASE_OCTAVE.get(base2, 0)
 
-            # Third base → duration
-            duration_mod = self.THIRD_BASE_DURATION.get(base3, 1.0)
+            # Use rhythm patterns for more varied timing
+            rhythm_key = base2 + base3
+            rhythm_pattern = self.RHYTHM_PATTERNS.get(rhythm_key, [1.0])
 
             # Layer 3: Frequency affects base duration
             freq = self.CODON_FREQUENCY.get(codon, 15.0)
@@ -730,11 +801,13 @@ class DNAProcessor:
             base_duration = 2.0 - (freq / 40.0) * 1.5
             base_duration = max(0.5, min(2.0, base_duration))
 
-            final_duration = base_duration * duration_mod
+            # Apply rhythm pattern variation
+            pattern_idx = codon_idx % len(rhythm_pattern)
+            final_duration = base_duration * rhythm_pattern[pattern_idx]
 
-            # Quantize duration to half-beats for rhythmic coherence
-            final_duration = round(final_duration * 2) / 2
-            final_duration = max(0.5, final_duration)  # Minimum half-beat
+            # Quantize duration to quarter-beats for more rhythmic detail
+            final_duration = round(final_duration * 4) / 4
+            final_duration = max(0.25, final_duration)  # Minimum 16th note
 
             # Calculate final pitch (middle C = 60)
             pitch = 60 + root + pitch_offset + octave_mod
@@ -844,9 +917,16 @@ class DNAProcessor:
 
         time_pos = time_offset
         end_time = time_offset + total_beats
-        # Rhythm pattern that sums to 4 beats (matches chord duration)
-        # This creates a "1 and 2 and 3 4" feel
-        bass_pattern = [1.5, 0.5, 1.0, 1.0]  # 1.5 + 0.5 + 1.0 + 1.0 = 4 beats
+
+        # Multiple bass patterns for variation (all sum to 4 beats)
+        bass_patterns = [
+            [1.5, 0.5, 1.0, 1.0],    # Standard: "1 and 2 and 3 4"
+            [1.0, 1.0, 1.0, 1.0],    # Walking: even quarters
+            [2.0, 1.0, 1.0],         # Half note start
+            [1.0, 0.5, 0.5, 1.0, 1.0],  # Syncopated
+            [0.75, 0.75, 0.5, 1.0, 1.0],  # Dotted feel
+            [1.5, 1.5, 1.0],         # Dotted half feel
+        ]
         codon_idx = 0
 
         while time_pos < end_time:
@@ -860,6 +940,10 @@ class DNAProcessor:
 
             # Get the root degree for this chord (same as harmony)
             root_degree = self.FIRST_BASE_DEGREE.get(codon[0], 0)
+
+            # Select bass pattern based on codon characteristics
+            pattern_selector = ord(codon[1]) % len(bass_patterns)
+            bass_pattern = bass_patterns[pattern_selector]
 
             # Play the bass pattern for this 4-beat chord cycle
             pattern_time = 0.0
