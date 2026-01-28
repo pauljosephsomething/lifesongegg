@@ -30,7 +30,8 @@ VERSION = "3.3.0"
 
 # Security Configuration
 # Set your allowed domain when deploying (e.g., 'https://lifesong.railway.app')
-ALLOWED_ORIGINS = os.environ.get('ALLOWED_ORIGINS', 'http://127.0.0.1:8080,http://localhost:8080').split(',')
+_origins = os.environ.get('ALLOWED_ORIGINS', 'http://127.0.0.1:8080,http://localhost:8080')
+ALLOWED_ORIGINS = [origin.strip() for origin in _origins.split(',') if origin.strip()]
 
 # User Access Key - master key for all users to access the app
 # Set via environment variable in production
