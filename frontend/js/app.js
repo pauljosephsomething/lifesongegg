@@ -337,6 +337,9 @@ const App = {
      * Generate music from DNA
      */
     async generateMusic() {
+        // IMPORTANT: Stop any playing audio first to prevent browser crash
+        AudioPlayer.stopAll();
+
         const sequence = DNAEngine.cleanSequence(this.elements.dnaInput.value);
         const validation = DNAEngine.validate(sequence);
 

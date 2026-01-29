@@ -134,8 +134,15 @@ const AudioPlayer = {
      * Stop the original track
      */
     stopOriginal() {
-        this.originalPlayer.pause();
-        this.originalPlayer.currentTime = 0;
+        try {
+            this.originalPlayer.pause();
+            this.originalPlayer.currentTime = 0;
+            // Clear source to release resources and prevent memory issues
+            this.originalPlayer.src = '';
+            this.originalPlayer.load();
+        } catch (e) {
+            console.warn('Error stopping original player:', e);
+        }
         this.state.originalPlaying = false;
         if (this.callbacks.onOriginalStateChange) {
             this.callbacks.onOriginalStateChange(false);
@@ -191,8 +198,15 @@ const AudioPlayer = {
      * Stop the cover track
      */
     stopCover() {
-        this.coverPlayer.pause();
-        this.coverPlayer.currentTime = 0;
+        try {
+            this.coverPlayer.pause();
+            this.coverPlayer.currentTime = 0;
+            // Clear source to release resources and prevent memory issues
+            this.coverPlayer.src = '';
+            this.coverPlayer.load();
+        } catch (e) {
+            console.warn('Error stopping cover player:', e);
+        }
         this.state.coverPlaying = false;
         if (this.callbacks.onCoverStateChange) {
             this.callbacks.onCoverStateChange(false);
