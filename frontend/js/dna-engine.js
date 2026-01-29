@@ -119,53 +119,113 @@ const DNAEngine = {
     },
 
     /**
-     * Generate a biologically realistic random DNA sequence
-     * Follows real DNA rules:
+     * Generate a biologically realistic random DNA sequence with musical variety
+     * Follows real DNA rules with enhanced variation for musical output:
      * - Starts with ATG (start codon)
      * - Ends with a stop codon (TAA, TAG, or TGA)
-     * - Uses realistic codon frequencies
-     * - Maintains natural GC content (40-60%)
+     * - VARIES GC content randomly (25-75%) to create different keys/modes
+     * - Randomizes codon selection to create different melodies
      * - Avoids too many repeats
      *
      * @param {number} length - Approximate desired length (will round to codon boundary)
-     * @returns {string} Realistic random sequence
+     * @returns {string} Realistic random sequence with good musical variety
      */
     generateRealisticDNA(length = 180) {
-        // Common codons weighted by typical usage in nature
-        // These are roughly based on human codon usage frequencies
-        const codons = {
-            // High frequency codons (more common in real genes)
-            high: [
-                'GCT', 'GCC', 'GCA',  // Alanine
-                'TGT', 'TGC',          // Cysteine
-                'GAT', 'GAC',          // Aspartic acid
-                'GAA', 'GAG',          // Glutamic acid
-                'TTT', 'TTC',          // Phenylalanine
-                'GGT', 'GGC', 'GGA',   // Glycine
-                'CAT', 'CAC',          // Histidine
-                'ATT', 'ATC', 'ATA',   // Isoleucine
-                'AAA', 'AAG',          // Lysine
-                'CTT', 'CTC', 'CTG',   // Leucine
-                'TTG', 'TTA',          // Leucine
-                'AAT', 'AAC',          // Asparagine
-                'CCT', 'CCC', 'CCA',   // Proline
-                'CAA', 'CAG',          // Glutamine
-                'CGT', 'CGC', 'AGA',   // Arginine
-                'TCT', 'TCC', 'TCA', 'AGT', 'AGC', // Serine
-                'ACT', 'ACC', 'ACA',   // Threonine
-                'GTT', 'GTC', 'GTA', 'GTG', // Valine
-                'TGG',                 // Tryptophan
-                'TAT', 'TAC'           // Tyrosine
-            ],
-            // Stop codons (used only at end)
-            stop: ['TAA', 'TAG', 'TGA']
-        };
-
-        // Flatten and create weighted pool (some codons appear more)
-        const codonPool = [
-            ...codons.high,
-            ...codons.high.slice(0, 20), // Double weight for first 20 common ones
+        // ALL 61 sense codons (excluding stop codons) - no weighting bias!
+        const allCodons = [
+            // Alanine (A)
+            'GCT', 'GCC', 'GCA', 'GCG',
+            // Cysteine (C)
+            'TGT', 'TGC',
+            // Aspartic acid (D)
+            'GAT', 'GAC',
+            // Glutamic acid (E)
+            'GAA', 'GAG',
+            // Phenylalanine (F)
+            'TTT', 'TTC',
+            // Glycine (G)
+            'GGT', 'GGC', 'GGA', 'GGG',
+            // Histidine (H)
+            'CAT', 'CAC',
+            // Isoleucine (I)
+            'ATT', 'ATC', 'ATA',
+            // Lysine (K)
+            'AAA', 'AAG',
+            // Leucine (L)
+            'TTA', 'TTG', 'CTT', 'CTC', 'CTA', 'CTG',
+            // Methionine (M) - also start codon
+            'ATG',
+            // Asparagine (N)
+            'AAT', 'AAC',
+            // Proline (P)
+            'CCT', 'CCC', 'CCA', 'CCG',
+            // Glutamine (Q)
+            'CAA', 'CAG',
+            // Arginine (R)
+            'CGT', 'CGC', 'CGA', 'CGG', 'AGA', 'AGG',
+            // Serine (S)
+            'TCT', 'TCC', 'TCA', 'TCG', 'AGT', 'AGC',
+            // Threonine (T)
+            'ACT', 'ACC', 'ACA', 'ACG',
+            // Valine (V)
+            'GTT', 'GTC', 'GTA', 'GTG',
+            // Tryptophan (W)
+            'TGG',
+            // Tyrosine (Y)
+            'TAT', 'TAC'
         ];
+
+        // Stop codons (used only at end)
+        const stopCodons = ['TAA', 'TAG', 'TGA'];
+
+        // Categorize codons by GC content for targeted selection
+        const lowGCCodons = allCodons.filter(c => {
+            const gc = (c.match(/[GC]/g) || []).length;
+            return gc <= 1;  // 0-1 G/C bases (AT-rich)
+        });
+        const midGCCodons = allCodons.filter(c => {
+            const gc = (c.match(/[GC]/g) || []).length;
+            return gc === 1 || gc === 2;  // 1-2 G/C bases (balanced)
+        });
+        const highGCCodons = allCodons.filter(c => {
+            const gc = (c.match(/[GC]/g) || []).length;
+            return gc >= 2;  // 2-3 G/C bases (GC-rich)
+        });
+
+        // Randomly choose a GC bias for this sequence (creates key/mode variety)
+        const gcBias = Math.random();
+        let codonPool;
+        if (gcBias < 0.25) {
+            // Low GC (creates different key, warmer instruments)
+            codonPool = [...lowGCCodons, ...lowGCCodons, ...midGCCodons];
+        } else if (gcBias > 0.75) {
+            // High GC (creates different key, brighter instruments)
+            codonPool = [...highGCCodons, ...highGCCodons, ...midGCCodons];
+        } else {
+            // Balanced or mixed (unpredictable)
+            if (Math.random() < 0.5) {
+                codonPool = [...allCodons]; // Use all codons equally
+            } else {
+                // Random mix
+                codonPool = [
+                    ...lowGCCodons.slice(0, Math.floor(Math.random() * lowGCCodons.length)),
+                    ...midGCCodons.slice(0, Math.floor(Math.random() * midGCCodons.length)),
+                    ...highGCCodons.slice(0, Math.floor(Math.random() * highGCCodons.length)),
+                    ...allCodons.slice(0, 20) // Some baseline variety
+                ];
+            }
+        }
+
+        // Ensure pool isn't empty
+        if (codonPool.length < 10) {
+            codonPool = [...allCodons];
+        }
+
+        // Shuffle the codon pool for extra randomness
+        for (let i = codonPool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [codonPool[i], codonPool[j]] = [codonPool[j], codonPool[i]];
+        }
 
         // Start with ATG (universal start codon)
         let sequence = 'ATG';
@@ -175,6 +235,7 @@ const DNAEngine = {
 
         // Track recent codons to avoid excessive repeats
         let lastCodon = 'ATG';
+        let secondLastCodon = '';
         let repeatCount = 0;
 
         for (let i = 0; i < targetCodons; i++) {
@@ -185,28 +246,29 @@ const DNAEngine = {
                 codon = codonPool[Math.floor(Math.random() * codonPool.length)];
                 attempts++;
 
-                // Avoid stop codons in the middle
-                if (codons.stop.includes(codon)) {
-                    continue;
-                }
-
                 // Avoid too many repeats of same codon
                 if (codon === lastCodon) {
                     repeatCount++;
-                    if (repeatCount > 2) continue;
+                    if (repeatCount > 1) continue;  // Stricter - only allow 1 repeat
                 } else {
                     repeatCount = 0;
+                }
+
+                // Avoid ABA patterns (sounds repetitive)
+                if (codon === secondLastCodon && attempts < 8) {
+                    continue;
                 }
 
                 break;
             } while (attempts < 10);
 
             sequence += codon;
+            secondLastCodon = lastCodon;
             lastCodon = codon;
         }
 
         // End with a random stop codon
-        sequence += codons.stop[Math.floor(Math.random() * codons.stop.length)];
+        sequence += stopCodons[Math.floor(Math.random() * stopCodons.length)];
 
         return sequence;
     },

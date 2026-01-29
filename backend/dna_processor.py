@@ -207,6 +207,32 @@ class DNAProcessor:
         'CC': [0.25, 0.25, 0.5, 1.0],  # 16ths to quarter
     }
 
+    # Melodic contour patterns - determines if melody rises, falls, or waves
+    # Selected based on sequence characteristics
+    CONTOUR_PATTERNS = {
+        'rising': [0, 1, 2, 3, 4, 5, 4, 3],      # Ascending phrases
+        'falling': [5, 4, 3, 2, 1, 0, 1, 2],      # Descending phrases
+        'wave': [0, 2, 4, 3, 1, 3, 5, 4],         # Wave-like motion
+        'zigzag': [0, 4, 1, 5, 2, 6, 3, 5],       # Jumping intervals
+        'arch': [0, 2, 4, 5, 4, 2, 0, 1],         # Arch shape
+        'valley': [4, 2, 0, 1, 0, 2, 4, 3],       # Valley shape
+        'stepwise': [0, 1, 0, 2, 1, 3, 2, 4],     # Gradual steps
+        'leaping': [0, 4, 2, 6, 1, 5, 3, 6],      # Large jumps
+    }
+
+    # Phrase lengths in codons - how many notes before pattern repeats/varies
+    PHRASE_LENGTHS = [4, 6, 8, 3, 5, 7]
+
+    # Octave jump patterns - when to shift octaves for variety
+    OCTAVE_PATTERNS = {
+        'stable': [0, 0, 0, 0, 0, 0, 0, 0],
+        'lift': [0, 0, 0, 0, 12, 12, 12, 0],
+        'drop': [0, 0, 12, 12, 0, 0, -12, 0],
+        'bounce': [0, 12, 0, 12, 0, -12, 0, 12],
+        'climb': [0, 0, 0, 12, 12, 12, 12, 12],
+        'descend': [12, 12, 12, 0, 0, 0, -12, -12],
+    }
+
     # ==================== INSTRUMENTS ====================
 
     INSTRUMENTS = {
@@ -679,7 +705,8 @@ class DNAProcessor:
         structure = self._find_structure_codons(codons)
 
         # Create MIDI file with 4 tracks
-        midi = MIDIFile(4)
+        # deinterleave=False prevents issues with overlapping notes
+        midi = MIDIFile(4, deinterleave=False)
 
         track_config = [
             ('Melody', instruments['melody'], 0),
@@ -754,11 +781,14 @@ class DNAProcessor:
 
     def _generate_melody_offset(self, midi, codons, root, scale, total_beats, analysis, time_offset):
         """
-        Generate melody from codons using Layer 4 mapping
-        Each codon = one melodic note with pitch, octave, and duration from its bases
+        Generate melody from codons using DNA-driven melodic contours and rhythms.
 
-        COHERENCE FIX: Added scale snapping to ensure all notes stay in key.
-        Melody timing is now quantized to half-beats for better flow.
+        Key improvements for variety:
+        - Melodic contour (rising/falling/wave) determined by sequence GC regions
+        - Phrase length varies based on codon patterns
+        - Octave shifts create different registers
+        - Rhythm patterns derived from codon combinations
+        - Each unique sequence produces a unique melodic shape
         """
         if not codons:
             return
@@ -768,6 +798,42 @@ class DNAProcessor:
         codon_idx = 0
         motif_patterns = [m['pattern'] for m in analysis.get('motifs', [])]
 
+        # === DETERMINE MELODIC CHARACTER FROM DNA ===
+
+        # Select contour pattern based on first few codons
+        contour_keys = list(self.CONTOUR_PATTERNS.keys())
+        if len(codons) >= 3:
+            # Use hash of first 3 codons to select contour
+            contour_hash = sum(ord(c) for c in ''.join(codons[:3])) % len(contour_keys)
+            contour_name = contour_keys[contour_hash]
+        else:
+            contour_name = 'wave'
+        contour = self.CONTOUR_PATTERNS[contour_name]
+
+        # Select octave pattern based on middle codons
+        octave_keys = list(self.OCTAVE_PATTERNS.keys())
+        mid_idx = len(codons) // 2
+        if len(codons) >= 6:
+            octave_hash = sum(ord(c) for c in ''.join(codons[mid_idx:mid_idx+3])) % len(octave_keys)
+            octave_pattern_name = octave_keys[octave_hash]
+        else:
+            octave_pattern_name = 'stable'
+        octave_pattern = self.OCTAVE_PATTERNS[octave_pattern_name]
+
+        # Determine phrase length from codon count
+        phrase_length = self.PHRASE_LENGTHS[len(codons) % len(self.PHRASE_LENGTHS)]
+
+        # Calculate a "melodic seed" from the whole sequence for consistent variation
+        melodic_seed = sum(ord(c) for c in ''.join(codons[:min(10, len(codons))]))
+
+        # Base octave varies by sequence
+        base_octave = 60 + ((melodic_seed % 3) - 1) * 12  # 48, 60, or 72
+
+        phrase_position = 0
+        current_phrase = 0
+        last_pitch = -1  # Track to avoid immediate pitch repetition causing MIDI issues
+        last_note_end = 0  # Track when last note ends
+
         while time_pos < end_time and codon_idx < len(codons):
             codon = codons[codon_idx % len(codons)]
 
@@ -775,66 +841,114 @@ class DNAProcessor:
             if self.CODON_TABLE.get(codon) == '*':
                 time_pos += 2  # Rest duration
                 codon_idx += 1
+                last_pitch = -1  # Reset pitch tracking after rest
                 continue
 
-            # Layer 4: Derive note from base positions
             base1, base2, base3 = codon[0], codon[1], codon[2]
 
-            # Extended degree: use first two bases for more melodic variety
+            # === PITCH CALCULATION WITH CONTOUR ===
+
+            # Get base degree from codon
             two_base = base1 + base2
-            degree = self.CODON_DEGREE_MODIFIER.get(two_base, self.FIRST_BASE_DEGREE.get(base1, 0))
-            if degree < len(scale):
-                pitch_offset = scale[degree]
-            else:
-                pitch_offset = scale[degree % len(scale)]
+            codon_degree = self.CODON_DEGREE_MODIFIER.get(two_base, self.FIRST_BASE_DEGREE.get(base1, 0))
 
-            # Second base → octave
-            octave_mod = self.SECOND_BASE_OCTAVE.get(base2, 0)
+            # Apply melodic contour - modifies the degree based on phrase position
+            contour_idx = phrase_position % len(contour)
+            contour_offset = contour[contour_idx]
 
-            # Use rhythm patterns for more varied timing
+            # Combine codon degree with contour (creates the melodic shape)
+            combined_degree = (codon_degree + contour_offset) % len(scale)
+            pitch_offset = scale[combined_degree]
+
+            # Apply octave pattern for register variety
+            octave_idx = phrase_position % len(octave_pattern)
+            octave_shift = octave_pattern[octave_idx]
+
+            # Additional octave variation from second base
+            base_octave_mod = self.SECOND_BASE_OCTAVE.get(base2, 0)
+
+            # === RHYTHM CALCULATION ===
+
+            # Primary rhythm from last two bases
             rhythm_key = base2 + base3
             rhythm_pattern = self.RHYTHM_PATTERNS.get(rhythm_key, [1.0])
 
-            # Layer 3: Frequency affects base duration
+            # Layer 3: Codon frequency affects duration
             freq = self.CODON_FREQUENCY.get(codon, 15.0)
-            # Higher frequency = shorter note (0.5-2.0 beats)
             base_duration = 2.0 - (freq / 40.0) * 1.5
             base_duration = max(0.5, min(2.0, base_duration))
 
-            # Apply rhythm pattern variation
+            # Apply rhythm pattern
             pattern_idx = codon_idx % len(rhythm_pattern)
             final_duration = base_duration * rhythm_pattern[pattern_idx]
 
-            # Quantize duration to quarter-beats for more rhythmic detail
+            # Phrase-based rhythm variation: notes at phrase boundaries are longer
+            if phrase_position == 0:
+                final_duration *= 1.3  # First note of phrase slightly longer
+            elif phrase_position == phrase_length - 1:
+                final_duration *= 1.5  # Last note of phrase longer (breath)
+
+            # Quantize to quarter-beats
             final_duration = round(final_duration * 4) / 4
-            final_duration = max(0.25, final_duration)  # Minimum 16th note
+            final_duration = max(0.25, final_duration)
 
-            # Calculate final pitch (middle C = 60)
-            pitch = 60 + root + pitch_offset + octave_mod
-            pitch = max(48, min(84, pitch))  # Keep in reasonable range
+            # === FINAL PITCH ===
+            pitch = base_octave + root + pitch_offset + base_octave_mod + octave_shift
+            pitch = max(48, min(84, pitch))
 
-            # COHERENCE: Snap to scale to prevent any stray notes
+            # Snap to scale
             pitch = self._snap_to_scale(pitch, root, scale)
-            pitch = max(48, min(84, pitch))  # Re-clamp after snapping
+            pitch = max(48, min(84, pitch))
 
-            # Motif emphasis: louder if part of detected motif
-            volume = 75
+            # === VOLUME/DYNAMICS ===
+            # Phrase shaping: crescendo then decrescendo within phrase
+            phrase_progress = phrase_position / max(1, phrase_length - 1)
+            if phrase_progress < 0.5:
+                dynamic_volume = 70 + int(phrase_progress * 30)  # 70 -> 85
+            else:
+                dynamic_volume = 85 - int((phrase_progress - 0.5) * 20)  # 85 -> 75
+
+            # Motif emphasis
+            volume = dynamic_volume
             for motif in motif_patterns:
                 if codon in motif:
-                    volume = 90
+                    volume = min(100, volume + 15)
                     break
+
+            # Ensure notes don't overlap (prevents MIDI library errors)
+            note_duration = final_duration * 0.85  # Leave gap between notes
+
+            # If same pitch as last note, shift slightly to avoid overlap issues
+            if pitch == last_pitch and time_pos < last_note_end:
+                # Skip this note or shift pitch
+                pitch = pitch + (7 if pitch < 78 else -7)  # Shift by fifth
+                pitch = self._snap_to_scale(pitch, root, scale)
+                pitch = max(48, min(84, pitch))
 
             midi.addNote(
                 track=0,
                 channel=0,
                 pitch=pitch,
                 time=time_pos,
-                duration=final_duration * 0.9,  # Slight gap between notes
+                duration=note_duration,
                 volume=volume
             )
 
+            last_pitch = pitch
+            last_note_end = time_pos + note_duration
             time_pos += final_duration
             codon_idx += 1
+            phrase_position += 1
+
+            # Reset phrase position at phrase boundary
+            if phrase_position >= phrase_length:
+                phrase_position = 0
+                current_phrase += 1
+                # Optionally shift contour for next phrase based on upcoming codons
+                if codon_idx < len(codons) - 2:
+                    next_codon = codons[codon_idx]
+                    contour_shift = ord(next_codon[0]) % 3
+                    contour = self.CONTOUR_PATTERNS[contour_keys[(contour_hash + contour_shift) % len(contour_keys)]]
 
     def _generate_harmony(self, midi, codons, root, scale, total_beats):
         """Wrapper for backwards compatibility"""
