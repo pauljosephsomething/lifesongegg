@@ -97,40 +97,40 @@ class DNAProcessor:
     # ==================== RHYTHM SYSTEM ====================
 
     # Third base determines base note duration (in beats)
-    # A = long, T = medium, G = short, C = very short
+    # Longer values = more sustained, contemplative feel
     THIRD_BASE_DURATION = {
-        'A': 1.5,    # Dotted quarter / half note feel
-        'T': 1.0,    # Quarter note
-        'G': 0.5,    # Eighth note
-        'C': 0.25,   # Sixteenth note
+        'A': 2.0,    # Whole/half note feel - very sustained
+        'T': 1.5,    # Dotted quarter - flowing
+        'G': 1.0,    # Quarter note - standard
+        'C': 0.75,   # Dotted eighth - slightly shorter
     }
 
     # Rhythm patterns based on codon pair (first bases of consecutive codons)
-    # Each pattern fills 4 beats and creates a rhythmic motif
+    # Each pattern fills 8 beats (2 bars) - longer phrases, less bouncy
     RHYTHM_PATTERNS = {
-        # AA, AT, AG, AC - Flowing patterns (A-starting = legato)
-        'AA': [1.5, 1.0, 1.5],           # Long-medium-long (waltz-like)
-        'AT': [1.0, 1.0, 1.0, 1.0],      # Steady quarters
-        'AG': [1.5, 0.5, 1.0, 1.0],      # Dotted eighth-sixteenth feel
-        'AC': [1.0, 0.5, 0.5, 1.0, 1.0], # Syncopated
+        # AA, AT, AG, AC - Sustained patterns (A = breath, space)
+        'AA': [4.0, 4.0],                # Two whole notes - very slow
+        'AT': [3.0, 2.0, 3.0],           # Long phrases
+        'AG': [2.0, 2.0, 2.0, 2.0],      # Even half notes
+        'AC': [2.0, 3.0, 3.0],           # Expanding phrase
 
-        # TA, TT, TG, TC - Driving patterns (T = rhythmic push)
-        'TA': [1.0, 1.5, 1.5],           # Push to long notes
-        'TT': [0.5, 0.5, 1.0, 0.5, 0.5, 1.0],  # Driving eighths
-        'TG': [0.75, 0.75, 0.5, 1.0, 1.0],     # Shuffle feel
-        'TC': [0.5, 0.5, 0.5, 0.5, 2.0],       # Buildup to long
+        # TA, TT, TG, TC - Flowing patterns (T = movement)
+        'TA': [2.0, 2.0, 4.0],           # Building to long
+        'TT': [1.5, 1.5, 2.0, 3.0],      # Gentle acceleration then sustain
+        'TG': [2.0, 1.0, 2.0, 3.0],      # Varied but smooth
+        'TC': [1.5, 2.5, 4.0],           # Short to long
 
-        # GA, GT, GG, GC - Sparse patterns (G = space)
-        'GA': [2.0, 2.0],                # Half notes (breathing room)
-        'GT': [1.5, 0.5, 2.0],           # Dotted quarter rest feel
-        'GG': [1.0, 1.0, 2.0],           # Quarter quarter half
-        'GC': [0.5, 1.5, 2.0],           # Pickup to sustained
+        # GA, GT, GG, GC - Spacious patterns (G = rest, contemplation)
+        'GA': [4.0, 4.0],                # Whole notes with space
+        'GT': [3.0, 5.0],                # Asymmetric but slow
+        'GG': [2.0, 2.0, 4.0],           # Quarter quarter half
+        'GC': [2.0, 6.0],                # Short pickup to very long
 
-        # CA, CT, CG, CC - Complex patterns (C = ornamentation)
-        'CA': [0.25, 0.25, 0.5, 1.0, 2.0],     # Grace notes to sustained
-        'CT': [0.5, 0.25, 0.25, 1.0, 1.0, 1.0], # Ornamental
-        'CG': [0.25, 0.75, 1.0, 2.0],          # Quick pickup
-        'CC': [0.25, 0.25, 0.25, 0.25, 1.0, 2.0], # Rapid to slow
+        # CA, CT, CG, CC - Melodic patterns (C = ornamentation but still slow)
+        'CA': [1.0, 1.0, 2.0, 4.0],      # Grace notes resolve to long
+        'CT': [1.5, 1.5, 2.0, 3.0],      # Gentle movement
+        'CG': [1.0, 3.0, 4.0],           # Quick pickup to sustained
+        'CC': [1.0, 1.0, 3.0, 3.0],      # Pairs of short then long
     }
 
     # ==================== CHORD PROGRESSIONS ====================
@@ -233,7 +233,9 @@ class DNAProcessor:
         pu_py_ratio = purines / pyrimidines if pyrimidines > 0 else 1.0
         scale, mode_name, character = self._get_mode(pu_py_ratio)
 
-        tempo = int(65 + (gc_content / 100) * 30)
+        # Tempo range: 40-60 BPM (slower, more contemplative)
+        # Low GC = slower (40), High GC = faster (60)
+        tempo = int(40 + (gc_content / 100) * 20)
 
         codons = self._get_codons(sequence)
         amino_acids = [self.CODON_TABLE.get(c, 'X') for c in codons]
@@ -379,23 +381,22 @@ class DNAProcessor:
         Returns list of (chord_degree, duration_beats, codon) tuples
         """
         if not codons:
-            return [(0, 4.0, 'ATG')]
+            return [(0, 8.0, 'ATG')]
 
         # Get progression type from dominant amino acid
         dominant = analysis.get('dominant_amino', 'A')
         prog_type = self.AMINO_PROGRESSION.get(dominant, 'classic')
         base_progression = self.PROGRESSIONS.get(prog_type, [0, 3, 4, 0])
 
-        # Each chord lasts 4 beats (one bar)
-        CHORD_DURATION = 4.0
+        # Each chord lasts 8 beats (2 bars) - slower harmonic rhythm
+        CHORD_DURATION = 8.0
 
         progression = []
         prog_idx = 0
         codon_idx = 0
 
-        # Calculate how many chords we need
-        # Use enough codons to cycle through progression multiple times
-        num_chords = max(8, len(codons) // 4)  # At least 8 chords, or 1 per 4 codons
+        # Calculate how many chords we need (fewer for slower music)
+        num_chords = max(4, len(codons) // 8)  # At least 4 chords
 
         for i in range(num_chords):
             # Get chord degree from progression pattern
@@ -413,12 +414,13 @@ class DNAProcessor:
 
     def _generate_melody_v6(self, midi, codons, root, scale, total_beats, analysis, progression):
         """
-        v6.0 Melody with rhythmic variety
+        v6.0 Melody with rhythmic variety - SLOW & CONTEMPLATIVE
 
-        - Uses rhythm patterns based on codon pairs
-        - Third base affects individual note duration
+        - Uses rhythm patterns based on codon pairs (8-beat phrases)
+        - Third base affects individual note duration (longer = more sustained)
         - Melodic contour shapes phrases
         - Stays in sync with chord changes
+        - Longer notes, more space, less bounce
         """
         if not codons:
             return
@@ -433,15 +435,15 @@ class DNAProcessor:
             codon = codons[codon_idx]
             next_codon = codons[(codon_idx + 1) % len(codons)]
 
-            # Skip stop codons (rest)
+            # Skip stop codons (rest - but longer rest for contemplative feel)
             if self.CODON_TABLE.get(codon) == '*':
-                time_pos += 1.0
+                time_pos += 2.0  # Longer rest
                 codon_idx += 1
                 continue
 
             # Get rhythm pattern from codon pair
             pattern_key = codon[0] + next_codon[0]
-            rhythm_pattern = self.RHYTHM_PATTERNS.get(pattern_key, [1.0, 1.0, 1.0, 1.0])
+            rhythm_pattern = self.RHYTHM_PATTERNS.get(pattern_key, [2.0, 2.0, 2.0, 2.0])
 
             # Get current chord for harmonic reference
             if chord_idx < len(progression):
@@ -484,8 +486,8 @@ class DNAProcessor:
 
                 raw_pitch = 60 + root + scale[final_degree] + octave_offset
 
-                # Stepwise motion constraint
-                max_jump = 5
+                # Stepwise motion constraint (slightly larger jumps OK for slow music)
+                max_jump = 7  # Up to a 5th
                 if abs(raw_pitch - last_pitch) > max_jump:
                     direction = 1 if raw_pitch > last_pitch else -1
                     raw_pitch = last_pitch + (direction * max_jump)
@@ -493,24 +495,36 @@ class DNAProcessor:
                 pitch = self._snap_to_scale(raw_pitch, root, scale)
                 pitch = max(48, min(84, pitch))
 
-                # Modify duration based on third base
+                # Third base extends duration (all durations are already long)
                 third_base = note_codon[2]
-                duration_mod = self.THIRD_BASE_DURATION.get(third_base, 1.0)
-                final_duration = note_duration * duration_mod
-                final_duration = max(0.2, min(note_duration, final_duration))
+                duration_mod = self.THIRD_BASE_DURATION.get(third_base, 1.5)
 
-                # Velocity based on beat strength
+                # Final duration: base pattern duration, modified by third base
+                # But cap at the actual note slot to avoid overlap
+                final_duration = min(note_duration * 0.95, note_duration * (duration_mod / 1.5))
+                final_duration = max(0.5, final_duration)  # Minimum half beat
+
+                # Velocity - gentler dynamics for slow music
                 if note_idx == 0:
-                    velocity = 85  # Downbeat strong
-                elif note_idx % 2 == 0:
-                    velocity = 75  # Other strong beats
+                    velocity = 75  # Downbeat - present but not aggressive
+                elif note_duration >= 3.0:
+                    velocity = 70  # Long notes - warm
                 else:
-                    velocity = 65  # Weak beats
+                    velocity = 65  # Other notes - soft
+
+                # Overall dynamic shape (quieter at start/end)
+                position = time_pos / total_beats if total_beats > 0 else 0
+                if position < 0.15:
+                    velocity = int(velocity * (0.6 + position * 2.5))
+                elif position > 0.85:
+                    velocity = int(velocity * (1.0 - (position - 0.85) * 3))
+
+                velocity = max(45, min(85, velocity))
 
                 midi.addNote(
                     track=0, channel=0, pitch=pitch,
                     time=time_pos + pattern_time,
-                    duration=final_duration * 0.9,
+                    duration=final_duration,
                     volume=velocity
                 )
 
@@ -560,7 +574,8 @@ class DNAProcessor:
 
     def _generate_bass_v6(self, midi, root, scale, total_beats, progression):
         """
-        v6.0 Bass - Root-fifth pattern following chord progression
+        v6.0 Bass - Slow, sustained bass following chord progression
+        Longer notes to match 40-60 BPM tempo
         """
         time_pos = 0.0
 
@@ -577,62 +592,57 @@ class DNAProcessor:
             fifth_pitch = 36 + root + scale[fifth_degree]
             fifth_pitch = max(28, min(48, fifth_pitch))
 
-            # Bass pattern varies by codon's second base
+            # Bass pattern varies by codon's second base - all patterns slower
             second_base = codon[1] if len(codon) > 1 else 'A'
 
             if second_base == 'A':
-                # Whole note root
+                # Sustained whole note root (full 8 beats)
                 midi.addNote(track=2, channel=2, pitch=root_pitch,
-                            time=time_pos, duration=min(duration * 0.9, total_beats - time_pos), volume=70)
+                            time=time_pos, duration=min(duration * 0.95, total_beats - time_pos), volume=60)
             elif second_base == 'T':
-                # Root and fifth
+                # Root then fifth - slow
                 midi.addNote(track=2, channel=2, pitch=root_pitch,
-                            time=time_pos, duration=1.8, volume=70)
-                if time_pos + 2 < total_beats:
+                            time=time_pos, duration=3.8, volume=65)
+                if time_pos + 4 < total_beats:
                     midi.addNote(track=2, channel=2, pitch=fifth_pitch,
-                                time=time_pos + 2, duration=1.8, volume=60)
+                                time=time_pos + 4, duration=3.8, volume=55)
             elif second_base == 'G':
-                # Walking pattern
+                # Gentle two-note pattern
                 midi.addNote(track=2, channel=2, pitch=root_pitch,
-                            time=time_pos, duration=0.9, volume=70)
-                if time_pos + 1 < total_beats:
+                            time=time_pos, duration=5.5, volume=60)
+                if time_pos + 6 < total_beats:
                     midi.addNote(track=2, channel=2, pitch=fifth_pitch,
-                                time=time_pos + 1, duration=0.9, volume=60)
-                if time_pos + 2 < total_beats:
-                    midi.addNote(track=2, channel=2, pitch=root_pitch,
-                                time=time_pos + 2, duration=0.9, volume=65)
+                                time=time_pos + 6, duration=1.8, volume=50)
+            else:  # C
+                # Three gentle notes across 8 beats
+                midi.addNote(track=2, channel=2, pitch=root_pitch,
+                            time=time_pos, duration=2.8, volume=65)
                 if time_pos + 3 < total_beats:
                     midi.addNote(track=2, channel=2, pitch=fifth_pitch,
-                                time=time_pos + 3, duration=0.9, volume=55)
-            else:  # C
-                # Syncopated
-                midi.addNote(track=2, channel=2, pitch=root_pitch,
-                            time=time_pos, duration=1.4, volume=70)
-                if time_pos + 1.5 < total_beats:
-                    midi.addNote(track=2, channel=2, pitch=fifth_pitch,
-                                time=time_pos + 1.5, duration=1.0, volume=65)
-                if time_pos + 2.5 < total_beats:
+                                time=time_pos + 3, duration=2.0, volume=55)
+                if time_pos + 5.5 < total_beats:
                     midi.addNote(track=2, channel=2, pitch=root_pitch,
-                                time=time_pos + 2.5, duration=1.4, volume=60)
+                                time=time_pos + 5.5, duration=2.3, volume=50)
 
             time_pos += duration
 
     def _generate_pad_v6(self, midi, root, scale, total_beats, progression):
         """
-        v6.0 Pad - Sustained chords, changes every 2 chord progressions
+        v6.0 Pad - Very slow sustained chords for ambient feel
+        Changes every 2 chord progressions (16 beats)
         """
         time_pos = 0.0
         chord_idx = 0
 
         while time_pos < total_beats and chord_idx < len(progression):
-            # Use every other chord for pad (slower movement)
+            # Use every other chord for pad (very slow movement)
             chord_degree, _, _ = progression[chord_idx]
 
-            # Pad duration is 2 chords worth (8 beats)
-            pad_duration = 8.0
+            # Pad duration is 2 chords worth (16 beats at new tempo)
+            pad_duration = 16.0
             actual_duration = min(pad_duration, total_beats - time_pos)
 
-            # Build pad chord
+            # Build pad chord - very soft and sustained
             for interval in [0, 2, 4]:
                 actual_degree = (chord_degree + interval) % len(scale)
                 pitch = 54 + root + scale[actual_degree]
@@ -641,7 +651,7 @@ class DNAProcessor:
                 midi.addNote(
                     track=3, channel=3, pitch=pitch,
                     time=time_pos, duration=actual_duration,
-                    volume=35
+                    volume=30  # Softer for ambient feel
                 )
 
             time_pos += pad_duration
