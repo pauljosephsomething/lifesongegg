@@ -328,6 +328,33 @@ def api_download():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/download-file/<filename>')
+@rate_limited
+def api_download_file(filename):
+    """Download a generated audio file to user's device"""
+    try:
+        # Security: only allow .mp3 and .mid files, no path traversal
+        if '..' in filename or '/' in filename or '\\' in filename:
+            return jsonify({'error': 'Invalid filename'}), 400
+
+        if not filename.endswith(('.mp3', '.mid')):
+            return jsonify({'error': 'Invalid file type'}), 400
+
+        file_path = os.path.join(OUTPUT_DIR, filename)
+
+        if os.path.exists(file_path):
+            return send_file(
+                file_path,
+                mimetype='audio/mpeg',
+                as_attachment=True,
+                download_name=filename
+            )
+        else:
+            return jsonify({'error': 'File not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # ==================== Main ====================
 
 if __name__ == '__main__':

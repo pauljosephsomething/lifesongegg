@@ -46,6 +46,7 @@ const App = {
             durationValue: document.getElementById('durationValue'),
             generateBtn: document.getElementById('generateBtn'),
             playOriginalBtn: document.getElementById('playOriginalBtn'),
+            downloadOriginalBtn: document.getElementById('downloadOriginalBtn'),
             analysisResult: document.getElementById('analysisResult'),
             analysisContent: document.getElementById('analysisContent'),
 
@@ -58,6 +59,7 @@ const App = {
             createCoverBtn: document.getElementById('createCoverBtn'),
             cancelBtn: document.getElementById('cancelBtn'),
             playCoverBtn: document.getElementById('playCoverBtn'),
+            downloadCoverBtn: document.getElementById('downloadCoverBtn'),
             progressFill: document.getElementById('progressFill'),
             progressText: document.getElementById('progressText'),
             statusLog: document.getElementById('statusLog'),
@@ -99,6 +101,9 @@ const App = {
         // Play original button
         this.elements.playOriginalBtn.addEventListener('click', () => this.togglePlayOriginal());
 
+        // Download original button
+        this.elements.downloadOriginalBtn.addEventListener('click', () => this.downloadOriginal());
+
         // Mood orbs
         this.elements.moodOrbs.forEach(orb => {
             orb.addEventListener('click', () => this.selectMood(orb.dataset.mood));
@@ -116,6 +121,7 @@ const App = {
         this.elements.createCoverBtn.addEventListener('click', () => this.createCover());
         this.elements.cancelBtn.addEventListener('click', () => this.cancelCover());
         this.elements.playCoverBtn.addEventListener('click', () => this.togglePlayCover());
+        this.elements.downloadCoverBtn.addEventListener('click', () => this.downloadCover());
 
         // Settings
         this.elements.settingsBtn.addEventListener('click', () => this.showSettings());
@@ -411,6 +417,7 @@ const App = {
 
                 // Enable buttons
                 this.elements.playOriginalBtn.disabled = false;
+                this.elements.downloadOriginalBtn.disabled = false;
                 this.elements.createCoverBtn.disabled = false;
 
                 // Update Step 2 status
@@ -567,6 +574,7 @@ const App = {
             this.setProgress(100);
 
             this.elements.playCoverBtn.disabled = false;
+            this.elements.downloadCoverBtn.disabled = false;
             this.showToast('AI cover created successfully!', 'success');
 
         } catch (error) {
@@ -664,6 +672,48 @@ const App = {
             toast.style.transform = 'translateX(100%)';
             setTimeout(() => toast.remove(), 300);
         }, 4000);
+    },
+
+    /**
+     * Download original DNA music file
+     */
+    downloadOriginal() {
+        if (!this.state.mp3Filename) {
+            this.showToast('No music file to download', 'error');
+            return;
+        }
+
+        // Create a download link
+        const url = `/api/download-file/${encodeURIComponent(this.state.mp3Filename)}`;
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = this.state.mp3Filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        this.showToast('Downloading DNA music...', 'success');
+    },
+
+    /**
+     * Download cover file
+     */
+    downloadCover() {
+        if (!this.state.coverFilename) {
+            this.showToast('No cover file to download', 'error');
+            return;
+        }
+
+        // Create a download link
+        const url = `/api/download-file/${encodeURIComponent(this.state.coverFilename)}`;
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = this.state.coverFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        this.showToast('Downloading cover...', 'success');
     }
 };
 

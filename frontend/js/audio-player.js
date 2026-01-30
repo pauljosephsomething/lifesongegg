@@ -137,9 +137,16 @@ const AudioPlayer = {
         try {
             this.originalPlayer.pause();
             this.originalPlayer.currentTime = 0;
-            // Clear source to release resources and prevent memory issues
-            this.originalPlayer.src = '';
-            this.originalPlayer.load();
+            // Only clear source if there was one playing (prevents error on empty stop)
+            if (this.state.originalPlaying) {
+                // Remove error listener temporarily to prevent spurious error on source clear
+                const errorHandler = this.originalPlayer.onerror;
+                this.originalPlayer.onerror = null;
+                this.originalPlayer.src = '';
+                this.originalPlayer.load();
+                // Restore error handler after a tick
+                setTimeout(() => { this.originalPlayer.onerror = errorHandler; }, 100);
+            }
         } catch (e) {
             console.warn('Error stopping original player:', e);
         }
@@ -201,9 +208,16 @@ const AudioPlayer = {
         try {
             this.coverPlayer.pause();
             this.coverPlayer.currentTime = 0;
-            // Clear source to release resources and prevent memory issues
-            this.coverPlayer.src = '';
-            this.coverPlayer.load();
+            // Only clear source if there was one playing (prevents error on empty stop)
+            if (this.state.coverPlaying) {
+                // Remove error listener temporarily to prevent spurious error on source clear
+                const errorHandler = this.coverPlayer.onerror;
+                this.coverPlayer.onerror = null;
+                this.coverPlayer.src = '';
+                this.coverPlayer.load();
+                // Restore error handler after a tick
+                setTimeout(() => { this.coverPlayer.onerror = errorHandler; }, 100);
+            }
         } catch (e) {
             console.warn('Error stopping cover player:', e);
         }
