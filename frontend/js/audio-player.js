@@ -207,16 +207,12 @@ const AudioPlayer = {
         try {
             this.coverPlayer.pause();
             this.coverPlayer.currentTime = 0;
-            // Only clear source if there was one playing (prevents error on empty stop)
-            if (this.state.coverPlaying) {
-                // Remove error listener temporarily to prevent spurious error on source clear
-                const errorHandler = this.coverPlayer.onerror;
-                this.coverPlayer.onerror = null;
-                this.coverPlayer.src = '';
-                this.coverPlayer.load();
-                // Restore error handler after a tick
-                setTimeout(() => { this.coverPlayer.onerror = errorHandler; }, 100);
-            }
+            // Suppress errors during cleanup to prevent spurious error messages
+            this.state.suppressErrors = true;
+            this.coverPlayer.src = '';
+            this.coverPlayer.load();
+            // Re-enable errors after a tick
+            setTimeout(() => { this.state.suppressErrors = false; }, 100);
         } catch (e) {
             console.warn('Error stopping cover player:', e);
         }
