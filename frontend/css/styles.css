@@ -566,6 +566,112 @@ body {
     color: var(--text-accent);
 }
 
+/* ===== Style Orbs ===== */
+.style-orbs {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 10px 0;
+}
+
+.style-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    transition: transform var(--transition-normal);
+}
+
+.style-btn:hover {
+    transform: translateY(-3px);
+}
+
+.style-btn.selected .style-orb {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.style-orb {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    position: relative;
+    opacity: 0.5;
+    transition: all var(--transition-normal);
+}
+
+.style-btn:hover .style-orb {
+    opacity: 0.8;
+}
+
+/* Style orb shine effect */
+.style-orb::after {
+    content: '';
+    position: absolute;
+    top: 12%;
+    left: 22%;
+    width: 35%;
+    height: 35%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.5), transparent 65%);
+    border-radius: 50%;
+    filter: blur(2px);
+}
+
+.style-orb-electronic {
+    background: radial-gradient(ellipse at 34% 30%, #b8a8f8, #9080d8, #7060b8, #504898);
+    box-shadow: 0 4px 18px rgba(130, 100, 200, 0.4);
+}
+
+.style-orb-folk {
+    background: radial-gradient(ellipse at 34% 30%, #c8d8a8, #a8b880, #889860, #687848);
+    box-shadow: 0 4px 18px rgba(140, 160, 100, 0.4);
+}
+
+.style-orb-classical {
+    background: radial-gradient(ellipse at 34% 30%, #f8d8b8, #d8b090, #b89070, #987050);
+    box-shadow: 0 4px 18px rgba(180, 140, 100, 0.4);
+}
+
+.style-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.style-btn.selected .style-label {
+    color: var(--text-accent);
+}
+
+/* ===== Prompt Input (editable) ===== */
+.prompt-input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+    resize: vertical;
+    transition: all var(--transition-fast);
+}
+
+.prompt-input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--glow-teal);
+}
+
+.prompt-input::placeholder {
+    color: var(--text-muted);
+}
+
 /* ===== Status & Results ===== */
 .status-indicator {
     display: flex;

@@ -124,13 +124,21 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="lyricsInput">Lyrics (optional - leave empty for instrumental)</label>
-                    <textarea
-                        id="lyricsInput"
-                        class="lyrics-input"
-                        rows="3"
-                        placeholder="Enter your lyrics here..."
-                    ></textarea>
+                    <label class="field-label">Select Style</label>
+                    <div class="style-orbs">
+                        <button class="style-btn" data-style="electronic">
+                            <div class="style-orb style-orb-electronic"></div>
+                            <span class="style-label">Electronic</span>
+                        </button>
+                        <button class="style-btn" data-style="folk">
+                            <div class="style-orb style-orb-folk"></div>
+                            <span class="style-label">Folk</span>
+                        </button>
+                        <button class="style-btn" data-style="classical">
+                            <div class="style-orb style-orb-classical"></div>
+                            <span class="style-label">Classical</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="field-group">
@@ -152,8 +160,13 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label subtle">Generated Prompt (auto-generated)</label>
-                    <div id="promptPreview" class="prompt-preview">[instrumental]</div>
+                    <label class="field-label subtle">Generated Prompt (editable)</label>
+                    <textarea
+                        id="promptPreview"
+                        class="prompt-input"
+                        rows="2"
+                        placeholder="[instrumental]"
+                    >[instrumental]</textarea>
                 </div>
 
                 <div class="action-row">

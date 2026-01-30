@@ -7,6 +7,7 @@ const App = {
     // State
     state: {
         mood: null,
+        style: null,  // 'electronic', 'folk', or 'classical'
         vocalType: 'none',  // 'none', 'female', or 'male'
         mp3Path: null,
         mp3Filename: null,
@@ -53,7 +54,7 @@ const App = {
             // Step 2
             step2Status: document.getElementById('step2Status'),
             moodOrbs: document.querySelectorAll('.orb-btn'),
-            lyricsInput: document.getElementById('lyricsInput'),
+            styleOrbs: document.querySelectorAll('.style-btn'),
             vocalOrbs: document.querySelectorAll('.vocal-btn'),
             promptPreview: document.getElementById('promptPreview'),
             createCoverBtn: document.getElementById('createCoverBtn'),
@@ -109,8 +110,10 @@ const App = {
             orb.addEventListener('click', () => this.selectMood(orb.dataset.mood));
         });
 
-        // Lyrics input
-        this.elements.lyricsInput.addEventListener('input', () => this.updatePromptPreview());
+        // Style orbs
+        this.elements.styleOrbs.forEach(orb => {
+            orb.addEventListener('click', () => this.selectStyle(orb.dataset.style));
+        });
 
         // Vocal orbs
         this.elements.vocalOrbs.forEach(orb => {
@@ -460,6 +463,20 @@ const App = {
     },
 
     /**
+     * Select style
+     */
+    selectStyle(style) {
+        this.state.style = style;
+
+        // Update UI
+        this.elements.styleOrbs.forEach(orb => {
+            orb.classList.toggle('selected', orb.dataset.style === style);
+        });
+
+        this.updatePromptPreview();
+    },
+
+    /**
      * Select vocal type
      */
     selectVocal(vocalType) {
@@ -478,7 +495,7 @@ const App = {
      */
     updatePromptPreview() {
         const mood = this.state.mood;
-        const lyrics = this.elements.lyricsInput.value.trim();
+        const style = this.state.style;
         const vocalType = this.state.vocalType;
 
         const moodTags = {
@@ -487,21 +504,32 @@ const App = {
             'energetic': '[atmospheric, ambient, upbeat tempo, edm, deep djembe, whale sounds]'
         };
 
-        let prompt = moodTags[mood] || '';
+        const styleTags = {
+            'electronic': '[electronic]',
+            'folk': '[indie folk]',
+            'classical': '[modern classical]'
+        };
+
+        let prompt = '';
+
+        // Add style tag first if selected
+        if (style) {
+            prompt += styleTags[style] + ' ';
+        }
+
+        // Add mood tags
+        prompt += moodTags[mood] || '';
 
         // Handle vocals based on selection
         if (vocalType === 'none') {
             // Strongly enforce instrumental - no vocals at all
             prompt += ' [instrumental, no vocals, no singing, no voice]';
-        } else if (lyrics) {
-            // Has lyrics and a vocal type selected
-            prompt += ` [${vocalType} vocals]\n\n${lyrics}`;
         } else {
-            // Vocal type selected but no lyrics - still allow vocals
+            // Vocal type selected - allow vocals
             prompt += ` [${vocalType} vocals, vocalise, wordless vocals]`;
         }
 
-        this.elements.promptPreview.textContent = prompt;
+        this.elements.promptPreview.value = prompt;
     },
 
     /**
@@ -522,7 +550,7 @@ const App = {
         this.elements.statusLog.textContent = '';
         this.setProgress(0);
 
-        const prompt = this.elements.promptPreview.textContent;
+        const prompt = this.elements.promptPreview.value;
         const tags = 'ambient, electronic, ethereal, dna, organic, experimental';
 
         try {
