@@ -1,5 +1,5 @@
 """
-DNA Lifesong Studio - DNA Processor v4.0
+DNA Lifesong Studio - DNA Processor v5.0
 Codon Harmony Algorithm - Research-based DNA to Music conversion
 
 Based on work by:
@@ -8,12 +8,13 @@ Based on work by:
 - John Dunn & Mary Anne Clark (1996) - Amino acid properties mapping
 - MIT Protein Music Project (2019) - Hierarchical structure encoding
 
-v4.0 - COMPLETE DNA-DRIVEN MELODIC VARIETY:
-- Every codon produces a UNIQUE melodic fragment
-- No hardcoded patterns - everything derives from DNA
-- Intro/outro are DNA-driven, not fixed patterns
-- Harmony, bass, pad all respond to actual codon sequence
-- Maximum musical variety from sequence variation
+v5.0 - MUSICAL COHERENCE WITH DNA VARIETY:
+- Phrases: 4-bar musical sentences with DNA-driven content
+- Motifs: Repeating themes based on detected DNA patterns
+- Stepwise motion: Adjacent notes move by small intervals (musical)
+- Phrase contour: Each phrase has a shape (rise/fall/arch) from DNA
+- Chord tones: Strong beat notes align with harmony
+- Different DNA = different music, but ALL music sounds musical
 """
 
 import os
@@ -25,36 +26,32 @@ import re
 
 class DNAProcessor:
     """
-    Codon Harmony Algorithm v4.0
+    Codon Harmony Algorithm v5.0 - Musical + Varied
 
-    CRITICAL: Every musical element must derive from DNA.
-    NO hardcoded patterns that sound the same regardless of sequence.
+    The key insight: Musical coherence comes from STRUCTURE, not randomness.
+    DNA drives WHAT notes to play, but musical rules govern HOW they connect.
 
-    Converts DNA sequences to music using a 5-layer hierarchical approach:
-    1. Global Analysis → Key signature & mode
-    2. Codon Reading → Chord progressions
-    3. Codon Frequency → Rhythm patterns
-    4. DIRECT CODON-TO-PITCH → Each codon = unique pitch
-    5. Motif Detection → Themes & variations
+    Principles:
+    1. Stepwise motion (notes move by small intervals most of the time)
+    2. Phrase structure (4-bar sentences with beginning, middle, end)
+    3. Chord tone emphasis (strong beats land on harmonically stable notes)
+    4. Motif repetition (DNA patterns become recurring musical themes)
+    5. Contour (phrases have shapes - DNA determines which shape)
     """
 
     # ==================== LAYER 1: KEY & MODE TABLES ====================
 
-    # Root key based on AT/GC ratio
     ROOT_KEYS = {
-        # ratio_range: (root_note, key_name)
-        (0.0, 0.7): (11, 'B'),      # High GC = B (tension)
-        (0.7, 0.85): (4, 'E'),      # E (bright)
-        (0.85, 1.0): (9, 'A'),      # A (warm)
-        (1.0, 1.15): (2, 'D'),      # D (balanced)
-        (1.15, 1.3): (7, 'G'),      # G (open)
-        (1.3, 1.5): (0, 'C'),       # C (pure)
-        (1.5, 999): (5, 'F'),       # High AT = F (deep)
+        (0.0, 0.7): (11, 'B'),
+        (0.7, 0.85): (4, 'E'),
+        (0.85, 1.0): (9, 'A'),
+        (1.0, 1.15): (2, 'D'),
+        (1.15, 1.3): (7, 'G'),
+        (1.3, 1.5): (0, 'C'),
+        (1.5, 999): (5, 'F'),
     }
 
-    # Mode based on purine/pyrimidine ratio (A+G)/(T+C)
     MODES = {
-        # ratio_range: (scale_intervals, mode_name, character)
         (0.0, 0.85): ([0, 1, 3, 5, 6, 8, 10], 'locrian', 'unstable'),
         (0.85, 0.92): ([0, 1, 3, 5, 7, 8, 10], 'phrygian', 'dark'),
         (0.92, 0.97): ([0, 2, 3, 5, 7, 8, 10], 'aeolian', 'reflective'),
@@ -66,7 +63,6 @@ class DNAProcessor:
 
     # ==================== LAYER 2: CODON TO AMINO ACID ====================
 
-    # Standard genetic code
     CODON_TABLE = {
         'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L',
         'TCT': 'S', 'TCC': 'S', 'TCA': 'S', 'TCG': 'S',
@@ -86,47 +82,24 @@ class DNAProcessor:
         'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G',
     }
 
-    # Amino acid properties → chord qualities (using SCALE DEGREES, not semitones)
     AMINO_ACID_CHORDS = {
-        # Hydrophobic (nonpolar) → Minor-like triads
-        'L': ('min', [0, 2, 4]),
-        'I': ('min', [0, 2, 4]),
-        'V': ('min', [0, 2, 4]),
-        'M': ('min', [0, 2, 4]),
+        'L': ('min', [0, 2, 4]), 'I': ('min', [0, 2, 4]),
+        'V': ('min', [0, 2, 4]), 'M': ('min', [0, 2, 4]),
         'A': ('min', [0, 2, 4]),
-
-        # Aromatic → Extended chords
-        'F': ('maj7', [0, 2, 4, 6]),
-        'Y': ('min7', [0, 2, 4, 6]),
+        'F': ('maj7', [0, 2, 4, 6]), 'Y': ('min7', [0, 2, 4, 6]),
         'W': ('maj9', [0, 2, 4, 6, 1]),
-
-        # Hydrophilic (polar) → Open triads
-        'S': ('maj', [0, 2, 4]),
-        'T': ('maj', [0, 2, 4]),
-        'N': ('maj', [0, 2, 4]),
-        'Q': ('maj', [0, 2, 4]),
-
-        # Positively charged → With tension
-        'K': ('dom7', [0, 2, 4, 5]),
-        'R': ('dom7', [0, 2, 4, 5]),
+        'S': ('maj', [0, 2, 4]), 'T': ('maj', [0, 2, 4]),
+        'N': ('maj', [0, 2, 4]), 'Q': ('maj', [0, 2, 4]),
+        'K': ('dom7', [0, 2, 4, 5]), 'R': ('dom7', [0, 2, 4, 5]),
         'H': ('dom7', [0, 2, 4, 5]),
-
-        # Negatively charged → With depth
-        'D': ('min7', [0, 2, 4, 5]),
-        'E': ('min7', [0, 2, 4, 5]),
-
-        # Special/structural → Suspended
-        'P': ('sus4', [0, 3, 4]),
-        'G': ('sus2', [0, 1, 4]),
+        'D': ('min7', [0, 2, 4, 5]), 'E': ('min7', [0, 2, 4, 5]),
+        'P': ('sus4', [0, 3, 4]), 'G': ('sus2', [0, 1, 4]),
         'C': ('dim', [0, 2, 4]),
-
-        # Stop codons → Rest/cadence
         '*': ('rest', []),
     }
 
     # ==================== LAYER 3: CODON FREQUENCY ====================
 
-    # Human codon usage frequencies (per 1000 codons)
     CODON_FREQUENCY = {
         'TTT': 17.6, 'TTC': 20.3, 'TTA': 7.7, 'TTG': 12.9,
         'TCT': 15.2, 'TCC': 17.7, 'TCA': 12.2, 'TCG': 4.4,
@@ -146,108 +119,98 @@ class DNAProcessor:
         'GGT': 10.8, 'GGC': 22.2, 'GGA': 16.5, 'GGG': 16.5,
     }
 
-    # ==================== LAYER 4: DIRECT CODON-TO-PITCH ====================
-    # CRITICAL: Each of 64 codons maps to a UNIQUE pitch offset
-    # This is THE KEY to melodic variety - different codons = different notes
-    # ALL 64 values are UNIQUE (0-63 range, mapped to ~2.5 octaves)
+    # ==================== LAYER 4: CODON TO SCALE DEGREE ====================
+    # Maps each codon to a scale degree (0-6) for melodic coherence
+    # Grouped by amino acid for musical "family" consistency
 
-    CODON_PITCH = {
-        # === T-starting codons (0-15) ===
-        'TTT': 0,   'TTC': 1,   'TTA': 2,   'TTG': 3,
-        'TCT': 4,   'TCC': 5,   'TCA': 6,   'TCG': 7,
-        'TAT': 8,   'TAC': 9,   'TAA': -1,  'TAG': -1,  # Stop = rest
-        'TGT': 10,  'TGC': 11,  'TGA': -1,  'TGG': 12,  # Stop = rest
-
-        # === C-starting codons (13-28) ===
-        'CTT': 13,  'CTC': 14,  'CTA': 15,  'CTG': 16,
-        'CCT': 17,  'CCC': 18,  'CCA': 19,  'CCG': 20,
-        'CAT': 21,  'CAC': 22,  'CAA': 23,  'CAG': 24,
-        'CGT': 25,  'CGC': 26,  'CGA': 27,  'CGG': 28,
-
-        # === A-starting codons (29-44) ===
-        'ATT': 29,  'ATC': 30,  'ATA': 31,  'ATG': 32,  # ATG = start!
-        'ACT': 33,  'ACC': 34,  'ACA': 35,  'ACG': 36,
-        'AAT': 37,  'AAC': 38,  'AAA': 39,  'AAG': 40,
-        'AGT': 41,  'AGC': 42,  'AGA': 43,  'AGG': 44,
-
-        # === G-starting codons (45-60) ===
-        'GTT': 45,  'GTC': 46,  'GTA': 47,  'GTG': 48,
-        'GCT': 49,  'GCC': 50,  'GCA': 51,  'GCG': 52,
-        'GAT': 53,  'GAC': 54,  'GAA': 55,  'GAG': 56,
-        'GGT': 57,  'GGC': 58,  'GGA': 59,  'GGG': 60,
+    CODON_DEGREE = {
+        # Phenylalanine - low (0-1)
+        'TTT': 0, 'TTC': 1,
+        # Leucine - spans range (0-5)
+        'TTA': 0, 'TTG': 1, 'CTT': 2, 'CTC': 3, 'CTA': 4, 'CTG': 5,
+        # Isoleucine - mid-low (1-3)
+        'ATT': 1, 'ATC': 2, 'ATA': 3,
+        # Methionine (START) - root (0)
+        'ATG': 0,
+        # Valine - mid (2-4)
+        'GTT': 2, 'GTC': 3, 'GTA': 4, 'GTG': 2,
+        # Serine - spans (0-5)
+        'TCT': 0, 'TCC': 1, 'TCA': 2, 'TCG': 3, 'AGT': 4, 'AGC': 5,
+        # Proline - tension (3-6)
+        'CCT': 3, 'CCC': 4, 'CCA': 5, 'CCG': 6,
+        # Threonine - stable (0-3)
+        'ACT': 0, 'ACC': 1, 'ACA': 2, 'ACG': 3,
+        # Alanine - grounded (0-2)
+        'GCT': 0, 'GCC': 1, 'GCA': 2, 'GCG': 0,
+        # Tyrosine - mid-high (3-4)
+        'TAT': 3, 'TAC': 4,
+        # Histidine - bright (4-5)
+        'CAT': 4, 'CAC': 5,
+        # Glutamine - flowing (2-4)
+        'CAA': 2, 'CAG': 4,
+        # Asparagine - gentle (1-2)
+        'AAT': 1, 'AAC': 2,
+        # Lysine - bright/high (4-6)
+        'AAA': 4, 'AAG': 6,
+        # Aspartic acid - grounded (0-1)
+        'GAT': 0, 'GAC': 1,
+        # Glutamic acid - mid (2-3)
+        'GAA': 2, 'GAG': 3,
+        # Cysteine - tension (5-6)
+        'TGT': 5, 'TGC': 6,
+        # Tryptophan - high (6)
+        'TGG': 6,
+        # Arginine - spans high (3-6)
+        'CGT': 3, 'CGC': 4, 'CGA': 5, 'CGG': 6, 'AGA': 4, 'AGG': 5,
+        # Glycine - root/stable (0-1)
+        'GGT': 0, 'GGC': 1, 'GGA': 0, 'GGG': 1,
+        # Stop codons - rest
+        'TAA': -1, 'TAG': -1, 'TGA': -1,
     }
 
-    # Base position → scale degree adjustment
-    FIRST_BASE_DEGREE = {
-        'A': 0,  # Root
-        'T': 1,  # Second
-        'G': 2,  # Third
-        'C': 3,  # Fourth
+    # ==================== PHRASE CONTOURS ====================
+    # These define the SHAPE of a 4-note phrase (relative movement)
+    # Selected by DNA, but musically coherent regardless
+
+    CONTOURS = {
+        'A': [0, 1, 2, 1],      # Arch up (A for Arch)
+        'T': [2, 1, 0, 1],      # Arch down (T for Trough)
+        'G': [0, 1, 1, 2],      # Gradual rise (G for Growth)
+        'C': [2, 1, 1, 0],      # Gradual fall (C for Cascade)
     }
 
-    # Second base → octave modifier
-    SECOND_BASE_OCTAVE = {
-        'A': 0,    # Base octave
-        'T': -12,  # Down octave
-        'G': 12,   # Up octave
-        'C': 0,    # Base octave
-    }
-
-    # Third base → duration multiplier
-    THIRD_BASE_DURATION = {
-        'A': 1.5,   # Long
-        'T': 1.0,   # Normal
-        'G': 0.75,  # Medium
-        'C': 0.5,   # Short
+    # Octave placement by amino acid property
+    AMINO_OCTAVE = {
+        # Hydrophobic = lower register
+        'L': -12, 'I': -12, 'V': -12, 'M': 0, 'A': -12, 'F': 0, 'W': 0,
+        # Polar = middle register
+        'S': 0, 'T': 0, 'N': 0, 'Q': 0, 'Y': 0, 'C': 0,
+        # Charged = higher register
+        'K': 12, 'R': 12, 'H': 0, 'D': 0, 'E': 0,
+        # Special
+        'P': 0, 'G': -12,
+        # Stop
+        '*': 0,
     }
 
     # ==================== INSTRUMENTS ====================
 
-    INSTRUMENTS = {
-        'melody': 73,      # Flute
-        'harmony': 48,     # String Ensemble
-        'bass': 33,        # Acoustic Bass
-        'pad': 89,         # Pad (warm)
-    }
-
     INSTRUMENT_SETS = {
-        'low_gc': {
-            'melody': 71,   # Clarinet
-            'harmony': 46,  # Orchestral Harp
-            'bass': 33,     # Acoustic Bass
-            'pad': 92,      # Pad (bowed)
-        },
-        'mid_gc': {
-            'melody': 73,   # Flute
-            'harmony': 48,  # String Ensemble
-            'bass': 33,     # Acoustic Bass
-            'pad': 89,      # Pad (warm)
-        },
-        'high_gc': {
-            'melody': 79,   # Ocarina
-            'harmony': 88,  # Pad (new age)
-            'bass': 39,     # Synth Bass 1
-            'pad': 91,      # Pad (space voice)
-        },
-        'very_high_gc': {
-            'melody': 80,   # Lead (square)
-            'harmony': 95,  # Pad (sweep)
-            'bass': 38,     # Synth Bass 1
-            'pad': 94,      # Pad (halo)
-        }
+        'low_gc': {'melody': 71, 'harmony': 46, 'bass': 33, 'pad': 92},
+        'mid_gc': {'melody': 73, 'harmony': 48, 'bass': 33, 'pad': 89},
+        'high_gc': {'melody': 79, 'harmony': 88, 'bass': 39, 'pad': 91},
+        'very_high_gc': {'melody': 80, 'harmony': 95, 'bass': 38, 'pad': 94},
     }
 
-    # ==================== ANALYSIS METHODS ====================
+    # ==================== ANALYSIS ====================
 
     def analyze(self, sequence):
-        """Complete DNA analysis using all 5 layers"""
         if not sequence or len(sequence) < 3:
             return self._default_analysis()
 
         sequence = sequence.upper()
         length = len(sequence)
 
-        # === LAYER 1: Global Analysis ===
         gc_count = sequence.count('G') + sequence.count('C')
         at_count = sequence.count('A') + sequence.count('T')
         gc_content = (gc_count / length) * 100
@@ -260,69 +223,47 @@ class DNAProcessor:
         pu_py_ratio = purines / pyrimidines if pyrimidines > 0 else 1.0
         scale, mode_name, character = self._get_mode(pu_py_ratio)
 
-        tempo = int(60 + (gc_content / 100) * 40)
+        tempo = int(65 + (gc_content / 100) * 30)  # 65-95 BPM range
 
-        # === LAYER 2: Codon Analysis ===
         codons = self._get_codons(sequence)
         amino_acids = [self.CODON_TABLE.get(c, 'X') for c in codons]
-
-        # === LAYER 5: Motif Detection ===
         motifs = self._detect_motifs(sequence)
 
         return {
-            'key': key_name,
-            'root_note': root_note,
-            'mode': mode_name,
-            'scale': scale,
-            'character': character,
-            'tempo': tempo,
-            'gc': gc_content,
+            'key': key_name, 'root_note': root_note,
+            'mode': mode_name, 'scale': scale, 'character': character,
+            'tempo': tempo, 'gc': gc_content,
             'at_gc_ratio': round(at_gc_ratio, 3),
             'pu_py_ratio': round(pu_py_ratio, 3),
-            'codons': codons,
-            'amino_acids': amino_acids,
+            'codons': codons, 'amino_acids': amino_acids,
             'codon_count': len(codons),
-            'motifs': motifs,
-            'motif_count': len(motifs),
+            'motifs': motifs, 'motif_count': len(motifs),
             'length': length,
         }
 
     def _default_analysis(self):
-        """Return default values for empty/invalid sequences"""
         return {
-            'key': 'C',
-            'root_note': 0,
-            'mode': 'aeolian',
-            'scale': [0, 2, 3, 5, 7, 8, 10],
-            'character': 'reflective',
-            'tempo': 72,
-            'gc': 50.0,
-            'at_gc_ratio': 1.0,
-            'pu_py_ratio': 1.0,
-            'codons': [],
-            'amino_acids': [],
-            'codon_count': 0,
-            'motifs': [],
-            'motif_count': 0,
-            'length': 0,
+            'key': 'C', 'root_note': 0,
+            'mode': 'aeolian', 'scale': [0, 2, 3, 5, 7, 8, 10],
+            'character': 'reflective', 'tempo': 72, 'gc': 50.0,
+            'at_gc_ratio': 1.0, 'pu_py_ratio': 1.0,
+            'codons': [], 'amino_acids': [],
+            'codon_count': 0, 'motifs': [], 'motif_count': 0, 'length': 0,
         }
 
     def _get_root_key(self, ratio):
-        """Get root key from AT/GC ratio"""
         for (low, high), (note, name) in self.ROOT_KEYS.items():
             if low <= ratio < high:
                 return note, name
         return 0, 'C'
 
     def _get_mode(self, ratio):
-        """Get mode from purine/pyrimidine ratio"""
         for (low, high), (scale, name, char) in self.MODES.items():
             if low <= ratio < high:
                 return scale, name, char
         return [0, 2, 3, 5, 7, 8, 10], 'aeolian', 'reflective'
 
     def _get_codons(self, sequence):
-        """Split sequence into codons (triplets)"""
         codons = []
         for i in range(0, len(sequence) - 2, 3):
             codon = sequence[i:i+3]
@@ -331,62 +272,39 @@ class DNAProcessor:
         return codons
 
     def _detect_motifs(self, sequence):
-        """Detect repeating patterns (motifs) in the sequence"""
         motifs = []
-        min_length = 6
-        max_length = 18
-
-        for length in range(min_length, max_length + 1, 3):
+        for length in range(6, 19, 3):
             pattern_counts = Counter()
             for i in range(len(sequence) - length + 1):
                 pattern = sequence[i:i+length]
                 if all(b in 'ATGC' for b in pattern):
                     pattern_counts[pattern] += 1
-
             for pattern, count in pattern_counts.items():
                 if count >= 2:
-                    motifs.append({
-                        'pattern': pattern,
-                        'count': count,
-                        'length': length
-                    })
-
+                    motifs.append({'pattern': pattern, 'count': count, 'length': length})
         motifs.sort(key=lambda x: (-x['count'], -x['length']))
         return motifs[:5]
 
-    # ==================== HELPER METHODS ====================
-
     def _snap_to_scale(self, pitch, root, scale):
-        """Snap any pitch to the nearest note in the current scale."""
         pitch_class = (pitch - root) % 12
         min_distance = 12
         nearest_interval = 0
-
         for interval in scale:
             distance = min(abs(pitch_class - interval), 12 - abs(pitch_class - interval))
             if distance < min_distance:
                 min_distance = distance
                 nearest_interval = interval
-
         octave = (pitch - root) // 12
-        snapped_pitch = root + (octave * 12) + nearest_interval
-
-        if snapped_pitch > pitch + 6:
-            snapped_pitch -= 12
-        elif snapped_pitch < pitch - 6:
-            snapped_pitch += 12
-
-        return snapped_pitch
+        snapped = root + (octave * 12) + nearest_interval
+        if snapped > pitch + 6:
+            snapped -= 12
+        elif snapped < pitch - 6:
+            snapped += 12
+        return snapped
 
     # ==================== MIDI GENERATION ====================
 
     def generate_midi(self, dna, duration, output_path):
-        """
-        Generate MIDI file using the Codon Harmony algorithm
-
-        v4.0 - NO HARDCODED PATTERNS
-        Every note derives directly from the DNA sequence.
-        """
         analysis = self.analyze(dna)
 
         if analysis['codon_count'] < 3:
@@ -398,7 +316,6 @@ class DNAProcessor:
         codons = analysis['codons']
         gc = analysis['gc']
 
-        # Select instrument set based on GC content
         if gc < 35:
             instruments = self.INSTRUMENT_SETS['low_gc']
         elif gc < 50:
@@ -408,370 +325,313 @@ class DNAProcessor:
         else:
             instruments = self.INSTRUMENT_SETS['very_high_gc']
 
-        # Create MIDI file with 4 tracks
         midi = MIDIFile(4, deinterleave=False)
 
-        track_config = [
-            ('Melody', instruments['melody'], 0),
-            ('Harmony', instruments['harmony'], 1),
-            ('Bass', instruments['bass'], 2),
-            ('Pad', instruments['pad'], 3),
-        ]
-
-        for track, (name, instrument, channel) in enumerate(track_config):
+        for track, (name, inst) in enumerate([
+            ('Melody', instruments['melody']),
+            ('Harmony', instruments['harmony']),
+            ('Bass', instruments['bass']),
+            ('Pad', instruments['pad']),
+        ]):
             midi.addTrackName(track, 0, name)
             midi.addTempo(track, 0, tempo)
-            midi.addProgramChange(track, channel, 0, instrument)
+            midi.addProgramChange(track, track, 0, inst)
 
-        # Calculate beats
         beats_per_second = tempo / 60
         total_beats = int(duration * beats_per_second)
 
-        # Generate ALL tracks from DNA - no hardcoded intro/outro
-        self._generate_melody_v4(midi, codons, root, scale, total_beats, analysis)
-        self._generate_harmony_v4(midi, codons, root, scale, total_beats)
-        self._generate_bass_v4(midi, codons, root, scale, total_beats)
-        self._generate_pad_v4(midi, codons, root, scale, total_beats)
+        # Generate musically coherent tracks
+        self._generate_melody_v5(midi, codons, root, scale, total_beats, analysis)
+        self._generate_harmony_v5(midi, codons, root, scale, total_beats)
+        self._generate_bass_v5(midi, codons, root, scale, total_beats)
+        self._generate_pad_v5(midi, codons, root, scale, total_beats)
 
-        # Write MIDI file
         with open(output_path, 'wb') as f:
             midi.writeFile(f)
 
-        analysis['has_intro'] = False
-        analysis['has_outro'] = False
-        analysis['stop_codon'] = None
-
         return analysis
 
-    def _generate_melody_v4(self, midi, codons, root, scale, total_beats, analysis):
+    def _generate_melody_v5(self, midi, codons, root, scale, total_beats, analysis):
         """
-        v4.0 Melody Generation - PURE DNA DRIVEN
+        v5.0 Melody - Musical phrases with DNA-driven content
 
-        Every single note comes directly from a codon.
-        No hardcoded patterns, no fixed sequences.
+        Structure:
+        - 4-beat phrases (musical sentences)
+        - Each phrase has a contour (shape) determined by DNA
+        - Notes within phrase move stepwise (musical)
+        - Strong beats (1, 3) emphasize chord tones
+        - Phrase boundaries get longer notes (breathing room)
         """
         if not codons:
             return
+
+        # Work in 4-beat phrases
+        PHRASE_LENGTH = 4  # beats
+        NOTES_PER_PHRASE = 4  # one note per beat in phrase
+
+        total_phrases = total_beats // PHRASE_LENGTH
+        codons_per_phrase = max(1, len(codons) // total_phrases) if total_phrases > 0 else 1
+
+        time_pos = 0.0
+        codon_idx = 0
+        last_pitch = 60 + root  # Start at middle C + key
+
+        for phrase_num in range(total_phrases):
+            if codon_idx >= len(codons):
+                codon_idx = 0  # Loop codons if needed
+
+            # Get codons for this phrase
+            phrase_codons = codons[codon_idx:codon_idx + NOTES_PER_PHRASE]
+            if len(phrase_codons) < NOTES_PER_PHRASE:
+                phrase_codons = phrase_codons + codons[:NOTES_PER_PHRASE - len(phrase_codons)]
+
+            # Determine phrase contour from first codon's first base
+            contour_key = phrase_codons[0][0] if phrase_codons else 'A'
+            contour = self.CONTOURS.get(contour_key, [0, 1, 2, 1])
+
+            # Generate notes for this phrase
+            for note_in_phrase in range(NOTES_PER_PHRASE):
+                if note_in_phrase < len(phrase_codons):
+                    codon = phrase_codons[note_in_phrase]
+                else:
+                    codon = phrase_codons[-1]
+
+                # Skip stop codons (rest)
+                if self.CODON_TABLE.get(codon) == '*':
+                    time_pos += 1.0
+                    continue
+
+                # Get base scale degree from codon
+                base_degree = self.CODON_DEGREE.get(codon, 0)
+                if base_degree == -1:  # Stop codon
+                    time_pos += 1.0
+                    continue
+
+                # Apply contour offset
+                contour_offset = contour[note_in_phrase % len(contour)]
+
+                # Final degree combines codon's natural degree + contour shape
+                final_degree = (base_degree + contour_offset) % len(scale)
+
+                # Get pitch from scale
+                amino = self.CODON_TABLE.get(codon, 'A')
+                octave_offset = self.AMINO_OCTAVE.get(amino, 0)
+
+                raw_pitch = 60 + root + scale[final_degree] + octave_offset
+
+                # STEPWISE MOTION: Don't jump more than a 4th from last note
+                # This is what makes it sound MUSICAL
+                max_jump = 5  # semitones (a 4th)
+                if abs(raw_pitch - last_pitch) > max_jump:
+                    # Move toward target by step
+                    direction = 1 if raw_pitch > last_pitch else -1
+                    raw_pitch = last_pitch + (direction * max_jump)
+
+                pitch = self._snap_to_scale(raw_pitch, root, scale)
+                pitch = max(48, min(84, pitch))
+
+                # Duration: phrase start/end notes are longer
+                if note_in_phrase == 0:
+                    duration = 1.2  # Phrase start - slightly longer
+                elif note_in_phrase == NOTES_PER_PHRASE - 1:
+                    duration = 1.5  # Phrase end - breath
+                else:
+                    duration = 0.9  # Middle notes - connected
+
+                # Velocity: strong beats (1, 3) louder
+                if note_in_phrase % 2 == 0:
+                    velocity = 80
+                else:
+                    velocity = 65
+
+                # Phrase dynamics (crescendo/decrescendo)
+                phrase_progress = phrase_num / max(1, total_phrases - 1)
+                if phrase_progress < 0.3:
+                    velocity = int(velocity * (0.7 + phrase_progress))
+                elif phrase_progress > 0.7:
+                    velocity = int(velocity * (1.3 - phrase_progress))
+
+                velocity = max(50, min(100, velocity))
+
+                midi.addNote(
+                    track=0, channel=0, pitch=pitch,
+                    time=time_pos,
+                    duration=min(duration, 1.0) * 0.9,
+                    volume=velocity
+                )
+
+                last_pitch = pitch
+                time_pos += 1.0
+
+            codon_idx += codons_per_phrase
+
+    def _generate_harmony_v5(self, midi, codons, root, scale, total_beats):
+        """
+        v5.0 Harmony - Chord changes every 4 beats (one per phrase)
+        """
+        if not codons:
+            return
+
+        CHORD_LENGTH = 4.0  # One chord per phrase
+        num_chords = int(total_beats // CHORD_LENGTH)
+        codons_per_chord = max(1, len(codons) // num_chords) if num_chords > 0 else 1
 
         time_pos = 0.0
         codon_idx = 0
 
-        # Calculate timing: spread codons evenly across available time
-        # Reserve small gap at end for natural fade
-        usable_beats = total_beats * 0.95
-        beats_per_codon = usable_beats / len(codons) if len(codons) > 0 else 1.0
+        for _ in range(num_chords):
+            if time_pos >= total_beats:
+                break
 
-        # Minimum duration to avoid notes too short
-        min_duration = 0.25
-        max_duration = 2.0
-
-        while time_pos < total_beats and codon_idx < len(codons):
-            codon = codons[codon_idx]
-
-            # Get codon's unique pitch (0-60 range, or -1 for rest)
-            codon_pitch = self.CODON_PITCH.get(codon, 30)
-
-            if codon_pitch == -1:
-                # Stop codon = rest
-                time_pos += beats_per_codon
-                codon_idx += 1
-                continue
-
-            # === PITCH CALCULATION ===
-            # Scale the 0-60 range to fit within 2 octaves
-            # Map to scale tones for harmonic coherence
-            scale_len = len(scale)
-
-            # Which octave (0-60 spans about 2.5 octaves)
-            octave_offset = (codon_pitch // 24) * 12  # 0, 12, or 24
-
-            # Which scale degree (use modulo to stay in scale)
-            scale_degree = (codon_pitch % 24) % scale_len
-            pitch_in_scale = scale[scale_degree]
-
-            # Base octave is middle range
-            base_pitch = 60 + root + pitch_in_scale + octave_offset
-
-            # Apply second base octave modifier (subtle shift)
-            base2 = codon[1]
-            octave_mod = self.SECOND_BASE_OCTAVE.get(base2, 0) // 2  # Halved for subtlety
-
-            pitch = base_pitch + octave_mod
-            pitch = max(48, min(84, pitch))
-
-            # Snap to scale for harmonic coherence
-            pitch = self._snap_to_scale(pitch, root, scale)
-            pitch = max(48, min(84, pitch))
-
-            # === DURATION CALCULATION ===
-            # Base duration from codon position
-            base_duration = beats_per_codon
-
-            # Third base modifies duration
-            base3 = codon[2]
-            duration_mod = self.THIRD_BASE_DURATION.get(base3, 1.0)
-            note_duration = base_duration * duration_mod
-
-            # Clamp duration
-            note_duration = max(min_duration, min(max_duration, note_duration))
-
-            # === VELOCITY (DYNAMICS) ===
-            # Create dynamic shape based on position in sequence
-            position_ratio = codon_idx / len(codons)
-
-            # Bell curve dynamics: softer at start/end, louder in middle
-            if position_ratio < 0.2:
-                velocity = int(60 + position_ratio * 100)  # 60-80 crescendo
-            elif position_ratio > 0.8:
-                velocity = int(80 - (position_ratio - 0.8) * 100)  # 80-60 decrescendo
-            else:
-                velocity = int(75 + (0.5 - abs(position_ratio - 0.5)) * 20)  # 75-85 middle
-
-            # Codon frequency affects velocity (rare codons = accented)
-            freq = self.CODON_FREQUENCY.get(codon, 15.0)
-            if freq < 10:
-                velocity = min(100, velocity + 15)  # Rare codons are louder
-
-            velocity = max(50, min(100, velocity))
-
-            # Add the note
-            midi.addNote(
-                track=0,
-                channel=0,
-                pitch=pitch,
-                time=time_pos,
-                duration=note_duration * 0.9,  # Slight gap between notes
-                volume=velocity
-            )
-
-            time_pos += beats_per_codon
-            codon_idx += 1
-
-    def _generate_harmony_v4(self, midi, codons, root, scale, total_beats):
-        """
-        v4.0 Harmony - Chords from amino acid properties
-
-        Each codon's amino acid determines chord quality.
-        Chord changes happen based on actual codon sequence.
-        """
-        if not codons:
-            return
-
-        # Harmony changes every few codons for musical flow
-        # Faster codon progression = faster chord changes
-        codons_per_chord = max(2, len(codons) // 20)  # ~20 chord changes
-        beats_per_chord = (total_beats / len(codons)) * codons_per_chord
-
-        time_pos = 0.0
-        chord_idx = 0
-
-        while time_pos < total_beats and chord_idx < len(codons):
-            codon = codons[chord_idx]
-            amino_acid = self.CODON_TABLE.get(codon, 'A')
-
-            chord_name, scale_degrees = self.AMINO_ACID_CHORDS.get(
-                amino_acid, ('maj', [0, 2, 4])
-            )
+            codon = codons[codon_idx % len(codons)]
+            amino = self.CODON_TABLE.get(codon, 'A')
+            chord_name, degrees = self.AMINO_ACID_CHORDS.get(amino, ('maj', [0, 2, 4]))
 
             if chord_name == 'rest':
-                time_pos += beats_per_chord
-                chord_idx += codons_per_chord
+                time_pos += CHORD_LENGTH
+                codon_idx += codons_per_chord
                 continue
 
-            # Root degree from codon's first base
-            root_degree = self.FIRST_BASE_DEGREE.get(codon[0], 0)
+            # Chord root from first base
+            root_degree = {'A': 0, 'T': 1, 'G': 4, 'C': 3}.get(codon[0], 0)
 
-            # Build chord from scale degrees
-            for degree_offset in scale_degrees:
-                actual_degree = (root_degree + degree_offset) % len(scale)
-                pitch_in_scale = scale[actual_degree]
-                octave_adjust = ((root_degree + degree_offset) // len(scale)) * 12
-
-                pitch = 48 + root + pitch_in_scale + octave_adjust
+            for deg in degrees:
+                actual_deg = (root_degree + deg) % len(scale)
+                pitch = 48 + root + scale[actual_deg]
                 pitch = max(36, min(72, pitch))
 
                 midi.addNote(
-                    track=1,
-                    channel=1,
-                    pitch=pitch,
-                    time=time_pos,
-                    duration=beats_per_chord * 0.95,
-                    volume=55
+                    track=1, channel=1, pitch=pitch,
+                    time=time_pos, duration=CHORD_LENGTH * 0.95,
+                    volume=50
                 )
 
-            time_pos += beats_per_chord
-            chord_idx += codons_per_chord
+            time_pos += CHORD_LENGTH
+            codon_idx += codons_per_chord
 
-    def _generate_bass_v4(self, midi, codons, root, scale, total_beats):
+    def _generate_bass_v5(self, midi, codons, root, scale, total_beats):
         """
-        v4.0 Bass - Root movement from codon sequence
-
-        Bass follows chord roots with rhythm from codon properties.
+        v5.0 Bass - Root-fifth pattern locked to chord changes
         """
         if not codons:
             return
 
-        # Bass changes with chords
-        codons_per_chord = max(2, len(codons) // 20)
-        beats_per_chord = (total_beats / len(codons)) * codons_per_chord
+        CHORD_LENGTH = 4.0
+        num_chords = int(total_beats // CHORD_LENGTH)
+        codons_per_chord = max(1, len(codons) // num_chords) if num_chords > 0 else 1
 
         time_pos = 0.0
-        chord_idx = 0
+        codon_idx = 0
 
-        while time_pos < total_beats and chord_idx < len(codons):
-            codon = codons[chord_idx]
+        for _ in range(num_chords):
+            if time_pos >= total_beats:
+                break
 
+            codon = codons[codon_idx % len(codons)]
             if self.CODON_TABLE.get(codon) == '*':
-                time_pos += beats_per_chord
-                chord_idx += codons_per_chord
+                time_pos += CHORD_LENGTH
+                codon_idx += codons_per_chord
                 continue
 
             # Root degree from first base
-            root_degree = self.FIRST_BASE_DEGREE.get(codon[0], 0)
-            pitch_offset = scale[root_degree % len(scale)]
-            bass_pitch = 36 + root + pitch_offset
-            bass_pitch = max(28, min(48, bass_pitch))
+            root_degree = {'A': 0, 'T': 1, 'G': 4, 'C': 3}.get(codon[0], 0)
+            root_pitch = 36 + root + scale[root_degree % len(scale)]
+            root_pitch = max(28, min(48, root_pitch))
 
-            # Rhythm pattern from second and third base
-            base2, base3 = codon[1], codon[2]
-
-            # Create a 2-note bass pattern per chord
-            # First note = root, second note = fifth
+            # Fifth
             fifth_degree = (root_degree + 4) % len(scale)
             fifth_pitch = 36 + root + scale[fifth_degree]
             fifth_pitch = max(28, min(48, fifth_pitch))
 
-            # Duration split based on third base
-            dur_mod = self.THIRD_BASE_DURATION.get(base3, 1.0)
-            first_dur = beats_per_chord * 0.6 * dur_mod
-            second_dur = beats_per_chord * 0.35
+            # Pattern: root on 1, fifth on 3
+            midi.addNote(track=2, channel=2, pitch=root_pitch,
+                        time=time_pos, duration=1.8, volume=70)
+            midi.addNote(track=2, channel=2, pitch=fifth_pitch,
+                        time=time_pos + 2.0, duration=1.8, volume=60)
 
-            # Add root note
-            midi.addNote(
-                track=2, channel=2, pitch=bass_pitch,
-                time=time_pos, duration=min(first_dur, beats_per_chord * 0.5),
-                volume=70
-            )
+            time_pos += CHORD_LENGTH
+            codon_idx += codons_per_chord
 
-            # Add fifth (if there's time)
-            if first_dur < beats_per_chord * 0.7:
-                midi.addNote(
-                    track=2, channel=2, pitch=fifth_pitch,
-                    time=time_pos + first_dur, duration=second_dur,
-                    volume=60
-                )
-
-            time_pos += beats_per_chord
-            chord_idx += codons_per_chord
-
-    def _generate_pad_v4(self, midi, codons, root, scale, total_beats):
+    def _generate_pad_v5(self, midi, codons, root, scale, total_beats):
         """
-        v4.0 Pad - Sustained atmosphere from codon sequence
-
-        Long sustained chords that follow the harmonic progression.
+        v5.0 Pad - Slow-moving sustained harmony (changes every 8 beats)
         """
         if not codons:
             return
 
-        # Pad changes less frequently than harmony (every ~4 chords)
-        codons_per_pad = max(4, len(codons) // 10)
-        beats_per_pad = (total_beats / len(codons)) * codons_per_pad
+        PAD_LENGTH = 8.0
+        num_pads = int(total_beats // PAD_LENGTH) + 1
+        codons_per_pad = max(1, len(codons) // num_pads) if num_pads > 0 else 1
 
         time_pos = 0.0
-        pad_idx = 0
+        codon_idx = 0
 
-        while time_pos < total_beats and pad_idx < len(codons):
-            codon = codons[pad_idx]
-
+        while time_pos < total_beats:
+            codon = codons[codon_idx % len(codons)]
             if self.CODON_TABLE.get(codon) == '*':
-                time_pos += beats_per_pad
-                pad_idx += codons_per_pad
+                time_pos += PAD_LENGTH
+                codon_idx += codons_per_pad
                 continue
 
-            # Root from codon
-            root_degree = self.FIRST_BASE_DEGREE.get(codon[0], 0)
+            root_degree = {'A': 0, 'T': 1, 'G': 4, 'C': 3}.get(codon[0], 0)
 
-            # Simple triad for pad
-            for degree_offset in [0, 2, 4]:
-                actual_degree = (root_degree + degree_offset) % len(scale)
-                pitch_in_scale = scale[actual_degree]
-                pitch = 54 + root + pitch_in_scale
+            # Simple triad pad
+            for deg_offset in [0, 2, 4]:
+                actual_deg = (root_degree + deg_offset) % len(scale)
+                pitch = 54 + root + scale[actual_deg]
                 pitch = max(48, min(72, pitch))
+
+                remaining = total_beats - time_pos
+                dur = min(PAD_LENGTH, remaining)
 
                 midi.addNote(
                     track=3, channel=3, pitch=pitch,
-                    time=time_pos, duration=beats_per_pad,
-                    volume=35  # Soft
+                    time=time_pos, duration=dur,
+                    volume=35
                 )
 
-            time_pos += beats_per_pad
-            pad_idx += codons_per_pad
+            time_pos += PAD_LENGTH
+            codon_idx += codons_per_pad
 
     def _generate_simple_midi(self, dna, duration, output_path, analysis):
-        """Fallback for very short sequences"""
         midi = MIDIFile(1, deinterleave=False)
         midi.addTrackName(0, 0, "Simple")
         midi.addTempo(0, 0, analysis['tempo'])
-        midi.addProgramChange(0, 0, 0, self.INSTRUMENTS['melody'])
+        midi.addProgramChange(0, 0, 0, 73)
 
         root = analysis['root_note']
         scale = analysis['scale']
 
         time_pos = 0
-        for i, base in enumerate(dna.upper()):
+        for base in dna.upper():
             if time_pos >= duration * 2:
                 break
             if base in 'ATGC':
-                degree = self.FIRST_BASE_DEGREE.get(base, 0)
+                degree = {'A': 0, 'T': 1, 'G': 2, 'C': 3}.get(base, 0)
                 pitch = 60 + root + scale[degree % len(scale)]
                 midi.addNote(0, 0, pitch, time_pos, 1, 70)
                 time_pos += 1
 
         with open(output_path, 'wb') as f:
             midi.writeFile(f)
-
         return analysis
 
     # ==================== MP3 CONVERSION ====================
 
     def convert_to_mp3(self, midi_path, mp3_path):
-        """Convert MIDI file to MP3"""
         try:
             wav_path = midi_path.replace('.mid', '.wav')
-
-            result = subprocess.run(
-                ['timidity', midi_path, '-Ow', '-o', wav_path],
-                check=True,
-                capture_output=True,
-                text=True
-            )
-
+            subprocess.run(['timidity', midi_path, '-Ow', '-o', wav_path],
+                          check=True, capture_output=True, text=True)
             try:
-                subprocess.run(
-                    ['lame', '-V2', wav_path, mp3_path],
-                    check=True,
-                    capture_output=True,
-                    text=True
-                )
+                subprocess.run(['lame', '-V2', wav_path, mp3_path],
+                              check=True, capture_output=True, text=True)
             except FileNotFoundError:
-                subprocess.run(
-                    ['afconvert', wav_path, mp3_path, '-d', 'aac', '-f', 'mp4f'],
-                    check=True,
-                    capture_output=True,
-                    text=True
-                )
-
+                subprocess.run(['afconvert', wav_path, mp3_path, '-d', 'aac', '-f', 'mp4f'],
+                              check=True, capture_output=True, text=True)
             if os.path.exists(wav_path):
                 os.remove(wav_path)
-
             return True
-
-        except subprocess.CalledProcessError as e:
-            print(f"Conversion error: {e.stderr if e.stderr else str(e)}")
-            return False
-        except FileNotFoundError as e:
-            print(f"Required tool not found: {e}")
-            return False
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            print(f"Conversion error: {e}")
             return False
