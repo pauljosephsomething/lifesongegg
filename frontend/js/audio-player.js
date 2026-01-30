@@ -13,7 +13,8 @@ const AudioPlayer = {
         originalPlaying: false,
         coverPlaying: false,
         originalFile: null,
-        coverFile: null
+        coverFile: null,
+        suppressErrors: false  // Flag to suppress errors during cleanup
     },
 
     // Callbacks
@@ -40,7 +41,8 @@ const AudioPlayer = {
 
         this.originalPlayer.addEventListener('error', (e) => {
             this.state.originalPlaying = false;
-            if (this.callbacks.onError) {
+            // Don't fire error callback if we're suppressing errors (during cleanup)
+            if (this.callbacks.onError && !this.state.suppressErrors) {
                 this.callbacks.onError('original', e);
             }
         });
@@ -55,7 +57,8 @@ const AudioPlayer = {
 
         this.coverPlayer.addEventListener('error', (e) => {
             this.state.coverPlaying = false;
-            if (this.callbacks.onError) {
+            // Don't fire error callback if we're suppressing errors (during cleanup)
+            if (this.callbacks.onError && !this.state.suppressErrors) {
                 this.callbacks.onError('cover', e);
             }
         });
@@ -137,16 +140,12 @@ const AudioPlayer = {
         try {
             this.originalPlayer.pause();
             this.originalPlayer.currentTime = 0;
-            // Only clear source if there was one playing (prevents error on empty stop)
-            if (this.state.originalPlaying) {
-                // Remove error listener temporarily to prevent spurious error on source clear
-                const errorHandler = this.originalPlayer.onerror;
-                this.originalPlayer.onerror = null;
-                this.originalPlayer.src = '';
-                this.originalPlayer.load();
-                // Restore error handler after a tick
-                setTimeout(() => { this.originalPlayer.onerror = errorHandler; }, 100);
-            }
+            // Suppress errors during cleanup to prevent spurious error messages
+            this.state.suppressErrors = true;
+            this.originalPlayer.src = '';
+            this.originalPlayer.load();
+            // Re-enable errors after a tick
+            setTimeout(() => { this.state.suppressErrors = false; }, 100);
         } catch (e) {
             console.warn('Error stopping original player:', e);
         }
