@@ -28,12 +28,34 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <!-- Login Overlay (blocks app until authenticated) -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <h1 class="login-title">DNA LIFESONG STUDIO</h1>
+            <p class="login-subtitle">Enter your access code to continue</p>
+
+            <div class="login-field">
+                <input
+                    type="password"
+                    id="loginCodeInput"
+                    class="login-input"
+                    placeholder="Access Code"
+                    autocomplete="off"
+                >
+            </div>
+
+            <button class="login-btn" id="loginBtn">Enter</button>
+
+            <p id="loginError" class="login-error hidden">Invalid access code</p>
+        </div>
+    </div>
+
     <!-- Cosmic Background Effects -->
     <div class="cosmic-bg"></div>
     <canvas id="particles"></canvas>
 
-    <!-- Main App Container -->
-    <main class="app-container">
+    <!-- Main App Container (blurred until login) -->
+    <main class="app-container blurred" id="appContainer">
         <!-- Header (shown on mobile, hidden on desktop where bg image has title) -->
         <header class="app-header">
             <h1>DNA LIFESONG STUDIO</h1>
@@ -197,7 +219,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="app-footer">
+    <footer class="app-footer blurred" id="appFooter">
         <span class="output-path">Output: ~/Desktop/DNA_Lifesong</span>
         <span class="version">v3.3.0</span>
         <button class="btn-settings" id="settingsBtn">

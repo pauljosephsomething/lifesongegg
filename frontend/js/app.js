@@ -15,7 +15,8 @@ const App = {
         coverFilename: null,
         isGenerating: false,
         isCreatingCover: false,
-        cancelRequested: false
+        cancelRequested: false,
+        isLoggedIn: false
     },
 
     // DOM Elements (cached on init)
@@ -25,14 +26,110 @@ const App = {
      * Initialize the application
      */
     init() {
+        // Check login first
+        this.checkLogin();
+
         this.cacheElements();
         this.setupEventListeners();
+        this.setupLoginListeners();
         this.initModules();
         this.initParticles();
         this.loadSettings();
         this.updatePromptPreview();
 
         console.log('DNA Lifesong Studio initialized');
+    },
+
+    /**
+     * Check if user is already logged in
+     */
+    checkLogin() {
+        const savedKey = localStorage.getItem('user_access_key');
+        if (savedKey) {
+            this.state.isLoggedIn = true;
+            this.hideLoginOverlay();
+        }
+    },
+
+    /**
+     * Setup login event listeners
+     */
+    setupLoginListeners() {
+        const loginBtn = document.getElementById('loginBtn');
+        const loginInput = document.getElementById('loginCodeInput');
+        const loginError = document.getElementById('loginError');
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => this.attemptLogin());
+        }
+
+        if (loginInput) {
+            loginInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.attemptLogin();
+                }
+                // Hide error on typing
+                if (loginError) loginError.classList.add('hidden');
+            });
+        }
+    },
+
+    /**
+     * Attempt to login with access code
+     */
+    attemptLogin() {
+        const loginInput = document.getElementById('loginCodeInput');
+        const loginError = document.getElementById('loginError');
+        const code = loginInput ? loginInput.value.trim() : '';
+
+        if (!code) {
+            if (loginError) loginError.classList.remove('hidden');
+            return;
+        }
+
+        // Save the access key
+        localStorage.setItem('user_access_key', code);
+        APIClient.setUserKey(code);
+        this.state.isLoggedIn = true;
+        this.hideLoginOverlay();
+        this.showToast('Welcome to DNA Lifesong Studio!', 'success');
+    },
+
+    /**
+     * Hide the login overlay and unblur app
+     */
+    hideLoginOverlay() {
+        const overlay = document.getElementById('loginOverlay');
+        const appContainer = document.getElementById('appContainer');
+        const appFooter = document.getElementById('appFooter');
+
+        if (overlay) overlay.classList.add('hidden');
+        if (appContainer) appContainer.classList.remove('blurred');
+        if (appFooter) appFooter.classList.remove('blurred');
+    },
+
+    /**
+     * Show the login overlay (for logout)
+     */
+    showLoginOverlay() {
+        const overlay = document.getElementById('loginOverlay');
+        const appContainer = document.getElementById('appContainer');
+        const appFooter = document.getElementById('appFooter');
+
+        if (overlay) overlay.classList.remove('hidden');
+        if (appContainer) appContainer.classList.add('blurred');
+        if (appFooter) appFooter.classList.add('blurred');
+    },
+
+    /**
+     * Logout user
+     */
+    logout() {
+        localStorage.removeItem('user_access_key');
+        this.state.isLoggedIn = false;
+        this.showLoginOverlay();
+        const loginInput = document.getElementById('loginCodeInput');
+        if (loginInput) loginInput.value = '';
     },
 
     /**
