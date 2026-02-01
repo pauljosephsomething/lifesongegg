@@ -118,6 +118,12 @@ def serve_index():
     return send_from_directory(FRONTEND_DIR, 'index.html')
 
 
+@app.route('/egg')
+def serve_egg_ui():
+    """Serve the new Egg UI"""
+    return send_from_directory(FRONTEND_DIR, 'egg-ui.html')
+
+
 @app.route('/<path:path>')
 def serve_static(path):
     """Serve static files (CSS, JS, images)"""

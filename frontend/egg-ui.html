@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0c1c2a">
+    <meta name="description" content="Transform your DNA sequence into unique, personalized music">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DNA Lifesong">
+
+    <title>DNA Lifesong Studio</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== CSS Variables ===== */
+        :root {
+            --bg-dark: #0c1c2a;
+            --text-primary: #c5dfe8;
+            --text-secondary: #7a9eb0;
+            --text-muted: #5a7e90;
+            --accent-teal: #5fb3b3;
+
+            /* Button colors */
+            --red-light: rgba(180, 100, 100, 0.7);
+            --red-mid: rgba(150, 75, 75, 0.7);
+            --red-dark: rgba(120, 55, 55, 0.7);
+
+            --green-light: rgba(100, 160, 100, 0.7);
+            --green-mid: rgba(75, 130, 75, 0.7);
+            --green-dark: rgba(55, 100, 55, 0.7);
+
+            --blue-light: rgba(100, 140, 180, 0.7);
+            --blue-mid: rgba(75, 110, 150, 0.7);
+            --blue-dark: rgba(55, 85, 120, 0.7);
+
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        /* ===== Reset & Base ===== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+        }
+
+        /* ===== Background ===== */
+        .background {
+            position: fixed;
+            inset: 0;
+            background: url('assets/1 Background new.png') no-repeat center center;
+            background-size: cover;
+            z-index: -1;
+        }
+
+        /* ===== Main Container ===== */
+        .egg-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== Egg Frame ===== */
+        .egg-frame {
+            position: relative;
+            width: min(90vw, 500px);
+            height: min(130vw, 750px);
+            background: url('assets/2 Egg Frame.png') no-repeat center center;
+            background-size: contain;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12% 8% 8% 8%;
+        }
+
+        /* ===== Top Button (Upload/Generate/Play) ===== */
+        .btn-main {
+            width: 70%;
+            height: 60px;
+            background: url('assets/top pill button.png') no-repeat center center;
+            background-size: 100% 100%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-main);
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .btn-main:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        .btn-main:active {
+            transform: scale(0.98);
+        }
+
+        .btn-main:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ===== 9 Button Grid ===== */
+        .button-grid {
+            display: flex;
+            gap: 8px;
+            width: 95%;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .button-column {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* Tapered column widths */
+        .button-column .grid-btn:nth-child(1) { width: 100%; }
+        .button-column .grid-btn:nth-child(2) { width: 92%; margin: 0 auto; }
+        .button-column .grid-btn:nth-child(3) { width: 84%; margin: 0 auto; }
+
+        .grid-btn {
+            width: 90px;
+            height: 52px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-main);
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            transition: transform 0.15s, filter 0.15s, border-color 0.15s;
+            text-align: center;
+            padding: 4px;
+        }
+
+        .grid-btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.15);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .grid-btn.selected {
+            border-color: rgba(255,255,255,0.7);
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        /* Red column */
+        .col-red .grid-btn:nth-child(1) { background: var(--red-light); }
+        .col-red .grid-btn:nth-child(2) { background: var(--red-mid); }
+        .col-red .grid-btn:nth-child(3) { background: var(--red-dark); }
+
+        /* Green column */
+        .col-green .grid-btn:nth-child(1) { background: var(--green-light); }
+        .col-green .grid-btn:nth-child(2) { background: var(--green-mid); }
+        .col-green .grid-btn:nth-child(3) { background: var(--green-dark); }
+
+        /* Blue column */
+        .col-blue .grid-btn:nth-child(1) { background: var(--blue-light); }
+        .col-blue .grid-btn:nth-child(2) { background: var(--blue-mid); }
+        .col-blue .grid-btn:nth-child(3) { background: var(--blue-dark); }
+
+        /* ===== Bottom Section ===== */
+        .bottom-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 80%;
+        }
+
+        /* Create/Cancel/Play Button */
+        .btn-create {
+            width: 100%;
+            height: 55px;
+            background: linear-gradient(180deg, rgba(130,210,255,0.35) 0%, rgba(70,140,210,0.2) 100%);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-main);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .btn-create:hover:not(:disabled) {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        .btn-create:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-create.cancel-state {
+            background: linear-gradient(180deg, rgba(255,120,120,0.35) 0%, rgba(180,60,60,0.2) 100%);
+        }
+
+        .btn-create.play-state {
+            background: linear-gradient(180deg, rgba(130,255,180,0.35) 0%, rgba(70,180,120,0.2) 100%);
+        }
+
+        /* Download Button */
+        .btn-download {
+            width: 80%;
+            height: 45px;
+            background: linear-gradient(180deg, rgba(120,220,210,0.3) 0%, rgba(50,140,170,0.18) 100%);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-main);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: transform 0.2s, filter 0.2s, opacity 0.3s;
+            opacity: 0.4;
+        }
+
+        .btn-download:hover:not(:disabled) {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        .btn-download:disabled {
+            cursor: not-allowed;
+        }
+
+        .btn-download.ready {
+            opacity: 1;
+        }
+
+        /* ===== Toast Notifications ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: rgba(12, 28, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 180, 200, 0.3);
+            border-radius: 8px;
+            padding: 14px 20px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            animation: slideIn 0.3s ease;
+            max-width: 320px;
+        }
+
+        .toast.success { border-color: #4eca8b; }
+        .toast.error { border-color: #e85555; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 400px) {
+            .grid-btn {
+                width: 75px;
+                height: 45px;
+                font-size: 0.6rem;
+            }
+
+            .btn-main {
+                height: 50px;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (min-height: 900px) {
+            .egg-frame {
+                padding: 10% 8% 6% 8%;
+            }
+
+            .grid-btn {
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="background"></div>
+
+    <!-- Main Container -->
+    <div class="egg-container">
+        <div class="egg-frame">
+
+            <!-- Top Button: Upload → Generate → Play -->
+            <button class="btn-main" id="btnMain">Upload DNA</button>
+
+            <!-- 9 Button Grid -->
+            <div class="button-grid">
+                <!-- Red Column (Mood) -->
+                <div class="button-column col-red">
+                    <button class="grid-btn" data-type="mood" data-value="meditative">Meditative</button>
+                    <button class="grid-btn" data-type="style" data-value="electronic">Electronic</button>
+                    <button class="grid-btn" data-type="vocal" data-value="none">No Vocal</button>
+                </div>
+
+                <!-- Green Column -->
+                <div class="button-column col-green">
+                    <button class="grid-btn" data-type="mood" data-value="atmospheric">Atmospheric</button>
+                    <button class="grid-btn" data-type="style" data-value="folk">Folk</button>
+                    <button class="grid-btn" data-type="vocal" data-value="female">Female</button>
+                </div>
+
+                <!-- Blue Column -->
+                <div class="button-column col-blue">
+                    <button class="grid-btn" data-type="mood" data-value="energetic">Energetic</button>
+                    <button class="grid-btn" data-type="style" data-value="classical">Classical</button>
+                    <button class="grid-btn" data-type="vocal" data-value="male">Male</button>
+                </div>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="bottom-section">
+                <button class="btn-create" id="btnCreate" disabled>Create</button>
+                <button class="btn-download" id="btnDownload" disabled>Download Song</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- JavaScript -->
+    <script src="js/dna-engine.js"></script>
+    <script src="js/audio-player.js"></script>
+    <script src="js/api-client.js"></script>
+    <script>
+        /**
+         * DNA Lifesong Studio - Egg UI
+         * New streamlined interface
+         */
+        const EggApp = {
+            // State
+            state: {
+                phase: 'upload', // 'upload', 'generate', 'play'
+                mood: null,
+                style: null,
+                vocalType: null,
+                dnaSequence: null,
+                mp3Path: null,
+                mp3Filename: null,
+                coverPath: null,
+                coverFilename: null,
+                isGenerating: false,
+                isCreatingCover: false,
+                coverReady: false
+            },
+
+            // DOM Elements
+            elements: {},
+
+            init() {
+                this.cacheElements();
+                this.setupEventListeners();
+                this.initAudioPlayer();
+                console.log('DNA Lifesong Egg UI initialized');
+            },
+
+            cacheElements() {
+                this.elements = {
+                    btnMain: document.getElementById('btnMain'),
+                    btnCreate: document.getElementById('btnCreate'),
+                    btnDownload: document.getElementById('btnDownload'),
+                    gridBtns: document.querySelectorAll('.grid-btn'),
+                    toastContainer: document.getElementById('toastContainer')
+                };
+            },
+
+            setupEventListeners() {
+                // Main button (Upload/Generate/Play)
+                this.elements.btnMain.addEventListener('click', () => this.handleMainButton());
+
+                // Grid buttons
+                this.elements.gridBtns.forEach(btn => {
+                    btn.addEventListener('click', () => this.handleGridButton(btn));
+                });
+
+                // Create button
+                this.elements.btnCreate.addEventListener('click', () => this.handleCreateButton());
+
+                // Download button
+                this.elements.btnDownload.addEventListener('click', () => this.downloadSong());
+            },
+
+            initAudioPlayer() {
+                AudioPlayer.init();
+                AudioPlayer.setCallbacks({
+                    onOriginalStateChange: (playing) => {
+                        if (this.state.phase === 'play') {
+                            this.elements.btnMain.textContent = playing ? 'Stop' : 'Play';
+                        }
+                    },
+                    onCoverStateChange: (playing) => {
+                        if (this.state.coverReady) {
+                            this.elements.btnCreate.textContent = playing ? 'Stop' : 'Play';
+                        }
+                    },
+                    onError: (type, error) => {
+                        // Suppress errors during cleanup
+                    }
+                });
+            },
+
+            // Main button handler (3 states)
+            async handleMainButton() {
+                switch (this.state.phase) {
+                    case 'upload':
+                        await this.uploadDNA();
+                        break;
+                    case 'generate':
+                        await this.generateMusic();
+                        break;
+                    case 'play':
+                        this.togglePlayOriginal();
+                        break;
+                }
+            },
+
+            // Upload DNA (uses random for demo)
+            async uploadDNA() {
+                // Generate random DNA for demo
+                const length = Math.floor(Math.random() * 60 + 40) * 3;
+                this.state.dnaSequence = DNAEngine.generateRealisticDNA(length);
+
+                this.showToast(`Loaded ${this.state.dnaSequence.length} bases`, 'success');
+
+                // Move to generate phase
+                this.state.phase = 'generate';
+                this.elements.btnMain.textContent = 'Generate';
+            },
+
+            // Generate music from DNA
+            async generateMusic() {
+                if (!this.state.dnaSequence) {
+                    this.showToast('No DNA loaded', 'error');
+                    return;
+                }
+
+                // Stop any playing audio
+                AudioPlayer.stopAll();
+
+                this.state.isGenerating = true;
+                this.elements.btnMain.textContent = 'Generating...';
+                this.elements.btnMain.disabled = true;
+
+                try {
+                    const result = await APIClient.generateMusic(this.state.dnaSequence, 45);
+
+                    if (result.success) {
+                        this.state.mp3Path = result.mp3_path;
+                        this.state.mp3Filename = result.filename;
+                        AudioPlayer.setOriginalFile(result.filename);
+
+                        // Move to play phase
+                        this.state.phase = 'play';
+                        this.elements.btnMain.textContent = 'Play';
+                        this.elements.btnCreate.disabled = false;
+
+                        this.showToast('Music generated!', 'success');
+                    } else {
+                        throw new Error(result.error || 'Generation failed');
+                    }
+                } catch (error) {
+                    this.showToast(`Error: ${error.message}`, 'error');
+                    this.elements.btnMain.textContent = 'Generate';
+                } finally {
+                    this.state.isGenerating = false;
+                    this.elements.btnMain.disabled = false;
+                }
+            },
+
+            // Toggle play original
+            togglePlayOriginal() {
+                const playing = AudioPlayer.toggleOriginal();
+                this.elements.btnMain.textContent = playing ? 'Stop' : 'Play';
+            },
+
+            // Handle grid button clicks
+            handleGridButton(btn) {
+                const type = btn.dataset.type;
+                const value = btn.dataset.value;
+
+                // Deselect others of same type
+                this.elements.gridBtns.forEach(b => {
+                    if (b.dataset.type === type) {
+                        b.classList.remove('selected');
+                    }
+                });
+
+                // Select this one
+                btn.classList.add('selected');
+
+                // Update state
+                if (type === 'mood') this.state.mood = value;
+                if (type === 'style') this.state.style = value;
+                if (type === 'vocal') this.state.vocalType = value;
+            },
+
+            // Handle create button (Create/Cancel/Play)
+            async handleCreateButton() {
+                if (this.state.coverReady) {
+                    // Play/stop cover
+                    const playing = AudioPlayer.toggleCover();
+                    this.elements.btnCreate.textContent = playing ? 'Stop' : 'Play';
+                } else if (this.state.isCreatingCover) {
+                    // Cancel
+                    this.state.cancelRequested = true;
+                    this.elements.btnCreate.textContent = 'Cancelling...';
+                } else {
+                    // Create cover
+                    await this.createCover();
+                }
+            },
+
+            // Create AI cover
+            async createCover() {
+                if (!this.state.mp3Path) {
+                    this.showToast('Generate music first!', 'error');
+                    return;
+                }
+
+                this.state.isCreatingCover = true;
+                this.state.cancelRequested = false;
+                this.elements.btnCreate.textContent = 'Cancel';
+                this.elements.btnCreate.classList.add('cancel-state');
+
+                // Build prompt from selections
+                const prompt = this.buildPrompt();
+                const tags = 'ambient, electronic, ethereal, dna, organic';
+
+                try {
+                    // Upload
+                    const uploadResult = await APIClient.uploadToMusicAPI(this.state.mp3Path);
+                    if (!uploadResult.success) throw new Error(uploadResult.error);
+                    if (this.state.cancelRequested) throw new Error('Cancelled');
+
+                    // Create cover
+                    const createResult = await APIClient.createCover(uploadResult.clip_id, prompt, tags);
+                    if (!createResult.success) throw new Error(createResult.error);
+                    if (this.state.cancelRequested) throw new Error('Cancelled');
+
+                    // Wait for completion
+                    const waitResult = await APIClient.waitForCover(
+                        createResult.task_id,
+                        (progress) => {}, // Could animate egg ring here
+                        () => this.state.cancelRequested
+                    );
+
+                    if (!waitResult.audio_url) throw new Error('No audio URL');
+
+                    // Download
+                    const downloadResult = await APIClient.downloadCover(waitResult.audio_url);
+                    if (!downloadResult.success) throw new Error(downloadResult.error);
+
+                    // Success!
+                    this.state.coverPath = downloadResult.path;
+                    this.state.coverFilename = downloadResult.filename;
+                    this.state.coverReady = true;
+                    AudioPlayer.setCoverFile(downloadResult.filename);
+
+                    this.elements.btnCreate.textContent = 'Play';
+                    this.elements.btnCreate.classList.remove('cancel-state');
+                    this.elements.btnCreate.classList.add('play-state');
+
+                    this.elements.btnDownload.disabled = false;
+                    this.elements.btnDownload.classList.add('ready');
+
+                    this.showToast('Cover created!', 'success');
+
+                } catch (error) {
+                    if (error.message === 'Cancelled') {
+                        this.showToast('Cancelled', 'info');
+                    } else {
+                        this.showToast(`Error: ${error.message}`, 'error');
+                    }
+                    this.elements.btnCreate.textContent = 'Create';
+                    this.elements.btnCreate.classList.remove('cancel-state');
+                } finally {
+                    this.state.isCreatingCover = false;
+                }
+            },
+
+            // Build prompt from selections
+            buildPrompt() {
+                const moodTags = {
+                    'meditative': '[meditative, ambient, atmospheric, slow tempo, no drums]',
+                    'atmospheric': '[atmospheric, ambient, no drums, deep djembe, whale sounds, medium tempo]',
+                    'energetic': '[atmospheric, ambient, upbeat tempo, edm, deep djembe, whale sounds]'
+                };
+
+                const styleTags = {
+                    'electronic': '[electronic]',
+                    'folk': '[indie folk]',
+                    'classical': '[modern classical]'
+                };
+
+                let prompt = '';
+                if (this.state.style) prompt += styleTags[this.state.style] + ' ';
+                if (this.state.mood) prompt += moodTags[this.state.mood] + ' ';
+
+                if (this.state.vocalType === 'none' || !this.state.vocalType) {
+                    prompt += '[instrumental, no vocals]';
+                } else {
+                    prompt += `[${this.state.vocalType} vocals, vocalise]`;
+                }
+
+                return prompt;
+            },
+
+            // Download song
+            downloadSong() {
+                const filename = this.state.coverFilename || this.state.mp3Filename;
+                if (!filename) {
+                    this.showToast('No song to download', 'error');
+                    return;
+                }
+
+                const url = `/api/download-file/${encodeURIComponent(filename)}`;
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                this.showToast('Downloading...', 'success');
+            },
+
+            // Toast notification
+            showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                this.elements.toastContainer.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        // Initialize when DOM ready
+        document.addEventListener('DOMContentLoaded', () => EggApp.init());
+    </script>
+</body>
+</html>
