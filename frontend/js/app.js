@@ -41,10 +41,13 @@ const App = {
     },
 
     /**
-     * Check if user is already logged in
+     * Check if user is already logged in (session-based, not persistent)
+     * Login is required once per browser session
      */
     checkLogin() {
-        const loggedIn = localStorage.getItem('lifesong_logged_in');
+        // Use sessionStorage instead of localStorage
+        // This means login is required once per browser session (tab close = logout)
+        const loggedIn = sessionStorage.getItem('lifesong_logged_in');
         if (loggedIn === 'true') {
             this.state.isLoggedIn = true;
             this.hideLoginOverlay();
@@ -55,25 +58,17 @@ const App = {
      * Setup login event listeners
      */
     setupLoginListeners() {
-        console.log('Setting up login listeners');
         const loginBtn = document.getElementById('loginBtn');
         const loginInput = document.getElementById('loginCodeInput');
         const loginError = document.getElementById('loginError');
 
-        console.log('loginBtn found:', !!loginBtn);
-        console.log('loginInput found:', !!loginInput);
-
         if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                console.log('Login button clicked');
-                this.attemptLogin();
-            });
+            loginBtn.addEventListener('click', () => this.attemptLogin());
         }
 
         if (loginInput) {
             loginInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    console.log('Enter key pressed');
                     this.attemptLogin();
                 }
                 // Hide error on typing
@@ -86,18 +81,14 @@ const App = {
      * Attempt to login with access code
      */
     attemptLogin() {
-        console.log('attemptLogin called');
         const loginInput = document.getElementById('loginCodeInput');
         const loginError = document.getElementById('loginError');
         const code = loginInput ? loginInput.value.trim() : '';
-
-        console.log('Login code entered:', code);
 
         // Simple password check - change this password to whatever you want
         const DEMO_PASSWORD = 'lifesong2026';
 
         if (!code) {
-            console.log('No code entered');
             if (loginError) {
                 loginError.textContent = 'Please enter an access code';
                 loginError.classList.remove('hidden');
@@ -106,14 +97,12 @@ const App = {
         }
 
         if (code === DEMO_PASSWORD) {
-            console.log('Password correct!');
-            // Save login state
-            localStorage.setItem('lifesong_logged_in', 'true');
+            // Save login state to sessionStorage (clears when browser/tab closes)
+            sessionStorage.setItem('lifesong_logged_in', 'true');
             this.state.isLoggedIn = true;
             this.hideLoginOverlay();
             this.showToast('Welcome to DNA Lifesong Studio!', 'success');
         } else {
-            console.log('Password incorrect');
             if (loginError) {
                 loginError.textContent = 'Invalid access code';
                 loginError.classList.remove('hidden');
@@ -151,7 +140,7 @@ const App = {
      * Logout user
      */
     logout() {
-        localStorage.removeItem('lifesong_logged_in');
+        sessionStorage.removeItem('lifesong_logged_in');
         this.state.isLoggedIn = false;
         this.showLoginOverlay();
         const loginInput = document.getElementById('loginCodeInput');
