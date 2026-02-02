@@ -143,6 +143,22 @@ def api_health():
     })
 
 
+@app.route('/api/validate-key', methods=['POST'])
+@rate_limited
+def api_validate_key():
+    """Validate user access key"""
+    # If no key is configured on server, allow any non-empty key (dev mode)
+    if USER_ACCESS_KEY is None:
+        provided_key = request.headers.get('X-User-Key') or ''
+        return jsonify({'valid': len(provided_key) > 0})
+
+    # Check if provided key matches
+    provided_key = request.headers.get('X-User-Key') or ''
+    is_valid = provided_key == USER_ACCESS_KEY
+
+    return jsonify({'valid': is_valid})
+
+
 @app.route('/api/generate', methods=['POST'])
 @require_user_key
 @rate_limited

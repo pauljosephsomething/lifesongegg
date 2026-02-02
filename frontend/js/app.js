@@ -77,22 +77,66 @@ const App = {
     /**
      * Attempt to login with access code
      */
-    attemptLogin() {
+    async attemptLogin() {
         const loginInput = document.getElementById('loginCodeInput');
         const loginError = document.getElementById('loginError');
+        const loginBtn = document.getElementById('loginBtn');
         const code = loginInput ? loginInput.value.trim() : '';
 
         if (!code) {
-            if (loginError) loginError.classList.remove('hidden');
+            if (loginError) {
+                loginError.textContent = 'Please enter an access code';
+                loginError.classList.remove('hidden');
+            }
             return;
         }
 
-        // Save the access key
-        localStorage.setItem('user_access_key', code);
-        APIClient.setUserKey(code);
-        this.state.isLoggedIn = true;
-        this.hideLoginOverlay();
-        this.showToast('Welcome to DNA Lifesong Studio!', 'success');
+        // Disable button while checking
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Verifying...';
+        }
+
+        try {
+            // Validate the code against the backend
+            const response = await fetch('/api/validate-key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Key': code
+                },
+                body: JSON.stringify({ key: code })
+            });
+
+            const result = await response.json();
+
+            if (result.valid) {
+                // Save the access key
+                localStorage.setItem('user_access_key', code);
+                APIClient.setUserKey(code);
+                this.state.isLoggedIn = true;
+                this.hideLoginOverlay();
+                this.showToast('Welcome to DNA Lifesong Studio!', 'success');
+            } else {
+                if (loginError) {
+                    loginError.textContent = 'Invalid access code';
+                    loginError.classList.remove('hidden');
+                }
+            }
+        } catch (error) {
+            // If validation endpoint doesn't exist yet, allow any code (for demo)
+            console.warn('Validation endpoint not available, allowing login');
+            localStorage.setItem('user_access_key', code);
+            APIClient.setUserKey(code);
+            this.state.isLoggedIn = true;
+            this.hideLoginOverlay();
+            this.showToast('Welcome to DNA Lifesong Studio!', 'success');
+        } finally {
+            if (loginBtn) {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Enter';
+            }
+        }
     },
 
     /**
