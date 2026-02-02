@@ -114,14 +114,14 @@ def rate_limited(f):
 
 @app.route('/')
 def serve_index():
-    """Serve the main HTML file"""
-    return send_from_directory(FRONTEND_DIR, 'index.html')
-
-
-@app.route('/egg')
-def serve_egg_ui():
-    """Serve the new Egg UI"""
+    """Serve the Egg UI as the main page"""
     return send_from_directory(FRONTEND_DIR, 'egg-ui.html')
+
+
+@app.route('/classic')
+def serve_classic_ui():
+    """Serve the original/classic UI"""
+    return send_from_directory(FRONTEND_DIR, 'index.html')
 
 
 @app.route('/<path:path>')
