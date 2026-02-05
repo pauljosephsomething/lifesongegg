@@ -27,20 +27,6 @@
             --text-secondary: #7a9eb0;
             --text-muted: #5a7e90;
             --accent-teal: #5fb3b3;
-
-            /* Button colors */
-            --red-light: rgba(180, 100, 100, 0.7);
-            --red-mid: rgba(150, 75, 75, 0.7);
-            --red-dark: rgba(120, 55, 55, 0.7);
-
-            --green-light: rgba(100, 160, 100, 0.7);
-            --green-mid: rgba(75, 130, 75, 0.7);
-            --green-dark: rgba(55, 100, 55, 0.7);
-
-            --blue-light: rgba(100, 140, 180, 0.7);
-            --blue-mid: rgba(75, 110, 150, 0.7);
-            --blue-dark: rgba(55, 85, 120, 0.7);
-
             --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
@@ -57,9 +43,7 @@
             -webkit-backdrop-filter: blur(20px);
         }
 
-        .login-overlay.hidden {
-            display: none;
-        }
+        .login-overlay.hidden { display: none; }
 
         .login-box {
             background: rgba(12, 28, 42, 0.8);
@@ -87,9 +71,7 @@
             margin-bottom: 30px;
         }
 
-        .login-field {
-            margin-bottom: 20px;
-        }
+        .login-field { margin-bottom: 20px; }
 
         .login-input {
             width: 100%;
@@ -133,15 +115,8 @@
             box-shadow: 0 6px 20px rgba(74, 156, 164, 0.3);
         }
 
-        .login-error {
-            color: #e85555;
-            font-size: 0.85rem;
-            margin-top: 16px;
-        }
-
-        .login-error.hidden {
-            display: none;
-        }
+        .login-error { color: #e85555; font-size: 0.85rem; margin-top: 16px; }
+        .login-error.hidden { display: none; }
 
         /* Blur when not logged in */
         .egg-container.blurred {
@@ -190,21 +165,34 @@
         /* ===== Egg Frame ===== */
         .egg-frame {
             position: relative;
-            width: min(90vw, 500px);
-            height: min(130vw, 750px);
+            width: min(88vw, 460px);
+            height: min(125vw, 700px);
             background: url('assets/2 Egg Frame.png') no-repeat center center;
             background-size: contain;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 12% 8% 8% 8%;
+            justify-content: center;
+            padding: 10% 6% 6% 6%;
+            gap: 2%;
         }
 
-        /* ===== Top Button (Upload/Generate/Play) ===== */
-        .btn-main {
-            width: 70%;
-            height: 60px;
+        /* ===== Section Labels ===== */
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            text-align: center;
+            margin: 0;
+        }
+
+        /* ===== Top Button (Upload DNA) ===== */
+        .btn-top {
+            width: 65%;
+            height: 50px;
             background: url('assets/top pill button.png') no-repeat center center;
             background-size: 100% 100%;
             border: none;
@@ -213,170 +201,205 @@
             align-items: center;
             justify-content: center;
             font-family: var(--font-main);
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             color: var(--text-primary);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6);
             transition: transform 0.2s, filter 0.2s;
+            flex-shrink: 0;
         }
 
-        .btn-main:hover {
-            transform: scale(1.02);
-            filter: brightness(1.1);
-        }
+        .btn-top:hover { transform: scale(1.03); filter: brightness(1.1); }
+        .btn-top:active { transform: scale(0.97); }
+        .btn-top:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-main:active {
-            transform: scale(0.98);
-        }
-
-        .btn-main:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* ===== 9 Button Grid ===== */
+        /* ===== 3x4 Button Grid ===== */
         .button-grid {
             display: flex;
-            gap: 8px;
-            width: 95%;
+            gap: 4%;
+            width: 92%;
             justify-content: center;
-            margin: 10px 0;
+            flex-shrink: 0;
         }
 
         .button-column {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
+            flex: 1;
         }
 
-        /* Tapered column widths */
-        .button-column .grid-btn:nth-child(1) { width: 100%; }
-        .button-column .grid-btn:nth-child(2) { width: 92%; margin: 0 auto; }
-        .button-column .grid-btn:nth-child(3) { width: 84%; margin: 0 auto; }
+        /* Taper: each row narrower than the last */
+        .button-row-0 { width: 100%; }
+        .button-row-1 { width: 94%; margin: 0 auto; }
+        .button-row-2 { width: 86%; margin: 0 auto; }
 
         .grid-btn {
-            width: 90px;
-            height: 52px;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
+            width: 100%;
+            height: 42px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: var(--font-main);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 500;
-            color: var(--text-primary);
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-            transition: transform 0.15s, filter 0.15s, border-color 0.15s;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            transition: transform 0.15s, filter 0.15s, border-color 0.15s, box-shadow 0.2s;
             text-align: center;
-            padding: 4px;
+            padding: 4px 6px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .grid-btn:hover {
             transform: scale(1.05);
-            filter: brightness(1.15);
+            filter: brightness(1.2);
             border-color: rgba(255,255,255,0.4);
         }
 
         .grid-btn.selected {
-            border-color: rgba(255,255,255,0.7);
-            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.8);
+            box-shadow: 0 0 12px rgba(255,255,255,0.3), inset 0 0 8px rgba(255,255,255,0.1);
             transform: scale(1.05);
+            filter: brightness(1.25);
         }
 
-        /* Red column */
-        .col-red .grid-btn:nth-child(1) { background: var(--red-light); }
-        .col-red .grid-btn:nth-child(2) { background: var(--red-mid); }
-        .col-red .grid-btn:nth-child(3) { background: var(--red-dark); }
+        /* Red column colors (Row 1 lightest → Row 3 darkest) */
+        .col-red .grid-btn:nth-child(1) { background: rgba(190, 95, 80, 0.7); }
+        .col-red .grid-btn:nth-child(2) { background: rgba(155, 70, 65, 0.7); }
+        .col-red .grid-btn:nth-child(3) { background: rgba(120, 50, 50, 0.65); }
 
-        /* Green column */
-        .col-green .grid-btn:nth-child(1) { background: var(--green-light); }
-        .col-green .grid-btn:nth-child(2) { background: var(--green-mid); }
-        .col-green .grid-btn:nth-child(3) { background: var(--green-dark); }
+        /* Green column colors */
+        .col-green .grid-btn:nth-child(1) { background: rgba(100, 160, 100, 0.65); }
+        .col-green .grid-btn:nth-child(2) { background: rgba(75, 130, 75, 0.65); }
+        .col-green .grid-btn:nth-child(3) { background: rgba(55, 100, 55, 0.6); }
 
-        /* Blue column */
-        .col-blue .grid-btn:nth-child(1) { background: var(--blue-light); }
-        .col-blue .grid-btn:nth-child(2) { background: var(--blue-mid); }
-        .col-blue .grid-btn:nth-child(3) { background: var(--blue-dark); }
+        /* Blue column colors */
+        .col-blue .grid-btn:nth-child(1) { background: rgba(90, 140, 190, 0.65); }
+        .col-blue .grid-btn:nth-child(2) { background: rgba(65, 110, 155, 0.65); }
+        .col-blue .grid-btn:nth-child(3) { background: rgba(50, 80, 120, 0.6); }
 
         /* ===== Bottom Section ===== */
         .bottom-section {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             width: 80%;
+            flex-shrink: 0;
         }
 
-        /* Create/Cancel/Play Button */
+        /* Create / Generate / Play Button (big teal pill) */
         .btn-create {
             width: 100%;
-            height: 55px;
-            background: linear-gradient(180deg, rgba(130,210,255,0.35) 0%, rgba(70,140,210,0.2) 100%);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 28px;
+            height: 48px;
+            background: linear-gradient(180deg, rgba(100, 200, 210, 0.4) 0%, rgba(60, 150, 180, 0.25) 100%);
+            border: 1px solid rgba(130, 210, 220, 0.4);
+            border-radius: 26px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: var(--font-main);
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--text-primary);
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             transition: transform 0.2s, filter 0.2s;
         }
 
-        .btn-create:hover:not(:disabled) {
-            transform: scale(1.02);
-            filter: brightness(1.1);
-        }
-
-        .btn-create:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        .btn-create:hover:not(:disabled) { transform: scale(1.03); filter: brightness(1.1); }
+        .btn-create:disabled { opacity: 0.4; cursor: not-allowed; }
 
         .btn-create.cancel-state {
             background: linear-gradient(180deg, rgba(255,120,120,0.35) 0%, rgba(180,60,60,0.2) 100%);
+            border-color: rgba(255,140,140,0.4);
         }
 
         .btn-create.play-state {
-            background: linear-gradient(180deg, rgba(130,255,180,0.35) 0%, rgba(70,180,120,0.2) 100%);
+            background: linear-gradient(180deg, rgba(100,230,170,0.35) 0%, rgba(60,180,120,0.2) 100%);
+            border-color: rgba(120,230,170,0.4);
         }
 
-        /* Download Button */
-        .btn-download {
-            width: 80%;
-            height: 45px;
-            background: linear-gradient(180deg, rgba(120,220,210,0.3) 0%, rgba(50,140,170,0.18) 100%);
-            border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 22px;
+        /* Cancel button (smaller, darker) */
+        .btn-cancel {
+            width: 70%;
+            height: 36px;
+            background: linear-gradient(180deg, rgba(50, 80, 100, 0.4) 0%, rgba(30, 60, 80, 0.3) 100%);
+            border: 1px solid rgba(100, 160, 180, 0.25);
+            border-radius: 20px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: var(--font-main);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 500;
-            color: var(--text-primary);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            color: var(--text-secondary);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
             transition: transform 0.2s, filter 0.2s, opacity 0.3s;
             opacity: 0.4;
         }
 
-        .btn-download:hover:not(:disabled) {
-            transform: scale(1.02);
-            filter: brightness(1.1);
+        .btn-cancel:hover:not(:disabled) { transform: scale(1.03); filter: brightness(1.1); }
+        .btn-cancel:disabled { cursor: not-allowed; }
+        .btn-cancel.active { opacity: 1; color: var(--text-primary); }
+
+        /* Download button */
+        .btn-download {
+            width: 65%;
+            height: 34px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-family: var(--font-main);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            transition: transform 0.2s, opacity 0.3s, color 0.2s;
+            opacity: 0.3;
         }
 
-        .btn-download:disabled {
-            cursor: not-allowed;
+        .btn-download:hover:not(:disabled) { transform: scale(1.03); color: var(--text-primary); }
+        .btn-download:disabled { cursor: not-allowed; }
+        .btn-download.ready { opacity: 1; color: var(--text-primary); }
+
+        /* ===== Progress Ring (around egg) ===== */
+        .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(min(88vw, 460px) + 10px);
+            height: calc(min(125vw, 700px) + 10px);
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.5s;
         }
 
-        .btn-download.ready {
-            opacity: 1;
+        .progress-ring.visible { opacity: 1; }
+
+        .progress-ring svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ===== Status text ===== */
+        .status-text {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-align: center;
+            min-height: 16px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
         }
 
         /* ===== Toast Notifications ===== */
@@ -411,27 +434,32 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* ===== Responsive ===== */
-        @media (max-width: 400px) {
-            .grid-btn {
-                width: 75px;
-                height: 45px;
-                font-size: 0.6rem;
-            }
+        .hidden { display: none; }
 
-            .btn-main {
-                height: 50px;
-                font-size: 0.95rem;
+        /* ===== Responsive ===== */
+        @media (max-width: 380px) {
+            .grid-btn {
+                height: 36px;
+                font-size: 0.58rem;
+            }
+            .btn-top { height: 42px; font-size: 0.85rem; }
+            .btn-create { height: 42px; font-size: 0.9rem; }
+        }
+
+        @media (min-height: 850px) {
+            .egg-frame {
+                gap: 2.5%;
+            }
+            .grid-btn {
+                height: 48px;
+                font-size: 0.7rem;
             }
         }
 
-        @media (min-height: 900px) {
+        /* Tall phones */
+        @media (min-height: 750px) and (max-width: 430px) {
             .egg-frame {
-                padding: 10% 8% 6% 8%;
-            }
-
-            .grid-btn {
-                height: 60px;
+                height: min(135vw, 780px);
             }
         }
     </style>
@@ -457,38 +485,45 @@
     <div class="egg-container blurred" id="eggContainer">
         <div class="egg-frame">
 
-            <!-- Top Button: Upload → Generate → Play -->
-            <button class="btn-main" id="btnMain">Upload DNA</button>
+            <!-- Top Button: Upload DNA → Generate → Play -->
+            <button class="btn-top" id="btnTop">Upload DNA</button>
 
-            <!-- 9 Button Grid -->
+            <!-- Section Label -->
+            <p class="section-label">Select Energy</p>
+
+            <!-- 3x3 Button Grid (9 buttons like a numpad) -->
             <div class="button-grid">
-                <!-- Red Column (Mood) -->
+                <!-- Red Column (left) -->
                 <div class="button-column col-red">
-                    <button class="grid-btn" data-type="mood" data-value="meditative">Meditative</button>
-                    <button class="grid-btn" data-type="style" data-value="electronic">Electronic</button>
-                    <button class="grid-btn" data-type="vocal" data-value="none">No Vocal</button>
+                    <button class="grid-btn button-row-0" data-type="mood" data-value="meditative">Meditative</button>
+                    <button class="grid-btn button-row-1" data-type="style" data-value="electronic">Electronic</button>
+                    <button class="grid-btn button-row-2" data-type="vocal" data-value="none">No Vocal</button>
                 </div>
 
-                <!-- Green Column -->
+                <!-- Green Column (center) -->
                 <div class="button-column col-green">
-                    <button class="grid-btn" data-type="mood" data-value="atmospheric">Atmospheric</button>
-                    <button class="grid-btn" data-type="style" data-value="folk">Folk</button>
-                    <button class="grid-btn" data-type="vocal" data-value="female">Female</button>
+                    <button class="grid-btn button-row-0" data-type="mood" data-value="atmospheric">Atmospheric</button>
+                    <button class="grid-btn button-row-1" data-type="style" data-value="folk">Folk</button>
+                    <button class="grid-btn button-row-2" data-type="vocal" data-value="female">Female</button>
                 </div>
 
-                <!-- Blue Column -->
+                <!-- Blue Column (right) -->
                 <div class="button-column col-blue">
-                    <button class="grid-btn" data-type="mood" data-value="energetic">Energetic</button>
-                    <button class="grid-btn" data-type="style" data-value="classical">Classical</button>
-                    <button class="grid-btn" data-type="vocal" data-value="male">Male</button>
+                    <button class="grid-btn button-row-0" data-type="mood" data-value="energetic">Energetic</button>
+                    <button class="grid-btn button-row-1" data-type="style" data-value="classical">Classical</button>
+                    <button class="grid-btn button-row-2" data-type="vocal" data-value="male">Male</button>
                 </div>
             </div>
 
             <!-- Bottom Section -->
             <div class="bottom-section">
                 <button class="btn-create" id="btnCreate" disabled>Create</button>
-                <button class="btn-download" id="btnDownload" disabled>Download Song</button>
+                <button class="btn-cancel" id="btnCancel" disabled>Cancel</button>
+                <button class="btn-download" id="btnDownload" disabled>&#8595; Download Song</button>
             </div>
+
+            <!-- Status -->
+            <p class="status-text" id="statusText"></p>
 
         </div>
     </div>
@@ -496,19 +531,22 @@
     <!-- Toast Notifications -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <!-- JavaScript -->
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" accept=".txt,.fasta,.fa" class="hidden">
+
+    <!-- JavaScript Modules -->
     <script src="js/dna-engine.js"></script>
     <script src="js/audio-player.js"></script>
     <script src="js/api-client.js"></script>
     <script>
         /**
          * DNA Lifesong Studio - Egg UI
-         * New streamlined interface
+         * Full app in egg visual design
          */
         const EggApp = {
             // State
             state: {
-                phase: 'upload', // 'upload', 'generate', 'play'
+                phase: 'upload',        // 'upload', 'generate', 'play'
                 mood: null,
                 style: null,
                 vocalType: null,
@@ -519,13 +557,13 @@
                 coverFilename: null,
                 isGenerating: false,
                 isCreatingCover: false,
+                cancelRequested: false,
                 coverReady: false
             },
 
-            // DOM Elements
             elements: {},
 
-            // Password - change this to whatever you want
+            // Password
             DEMO_PASSWORD: 'lifesong2026',
 
             init() {
@@ -537,7 +575,8 @@
                 console.log('DNA Lifesong Egg UI initialized');
             },
 
-            // Check if already logged in this session
+            // ==================== LOGIN ====================
+
             checkLogin() {
                 const loggedIn = sessionStorage.getItem('lifesong_logged_in');
                 if (loggedIn === 'true') {
@@ -545,7 +584,6 @@
                 }
             },
 
-            // Setup login event listeners
             setupLoginListeners() {
                 const loginBtn = document.getElementById('loginBtn');
                 const loginInput = document.getElementById('loginCodeInput');
@@ -554,18 +592,14 @@
                 if (loginBtn) {
                     loginBtn.addEventListener('click', () => this.attemptLogin());
                 }
-
                 if (loginInput) {
                     loginInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                            this.attemptLogin();
-                        }
+                        if (e.key === 'Enter') this.attemptLogin();
                         if (loginError) loginError.classList.add('hidden');
                     });
                 }
             },
 
-            // Attempt login
             attemptLogin() {
                 const loginInput = document.getElementById('loginCodeInput');
                 const loginError = document.getElementById('loginError');
@@ -591,39 +625,44 @@
                 }
             },
 
-            // Hide login overlay
             hideLoginOverlay() {
                 const overlay = document.getElementById('loginOverlay');
                 const eggContainer = document.getElementById('eggContainer');
-
                 if (overlay) overlay.classList.add('hidden');
                 if (eggContainer) eggContainer.classList.remove('blurred');
             },
 
+            // ==================== INIT ====================
+
             cacheElements() {
                 this.elements = {
-                    btnMain: document.getElementById('btnMain'),
+                    btnTop: document.getElementById('btnTop'),
                     btnCreate: document.getElementById('btnCreate'),
+                    btnCancel: document.getElementById('btnCancel'),
                     btnDownload: document.getElementById('btnDownload'),
                     gridBtns: document.querySelectorAll('.grid-btn'),
-                    toastContainer: document.getElementById('toastContainer')
+                    statusText: document.getElementById('statusText'),
+                    toastContainer: document.getElementById('toastContainer'),
+                    fileInput: document.getElementById('fileInput')
                 };
             },
 
             setupEventListeners() {
-                // Main button (Upload/Generate/Play)
-                this.elements.btnMain.addEventListener('click', () => this.handleMainButton());
+                // Top button
+                this.elements.btnTop.addEventListener('click', () => this.handleTopButton());
 
                 // Grid buttons
                 this.elements.gridBtns.forEach(btn => {
                     btn.addEventListener('click', () => this.handleGridButton(btn));
                 });
 
-                // Create button
+                // Bottom buttons
                 this.elements.btnCreate.addEventListener('click', () => this.handleCreateButton());
-
-                // Download button
+                this.elements.btnCancel.addEventListener('click', () => this.handleCancelButton());
                 this.elements.btnDownload.addEventListener('click', () => this.downloadSong());
+
+                // File input
+                this.elements.fileInput.addEventListener('change', (e) => this.onFileSelected(e));
             },
 
             initAudioPlayer() {
@@ -631,61 +670,59 @@
                 AudioPlayer.setCallbacks({
                     onOriginalStateChange: (playing) => {
                         if (this.state.phase === 'play') {
-                            this.elements.btnMain.textContent = playing ? 'Stop' : 'Play';
+                            this.elements.btnTop.textContent = playing ? 'Stop' : 'Play';
                         }
                     },
                     onCoverStateChange: (playing) => {
                         if (this.state.coverReady) {
-                            this.elements.btnCreate.textContent = playing ? 'Stop' : 'Play';
+                            this.elements.btnCreate.textContent = playing ? 'Stop' : 'Play Cover';
                         }
                     },
-                    onError: (type, error) => {
-                        // Suppress errors during cleanup
-                    }
+                    onError: () => {} // Suppress errors
                 });
             },
 
-            // Main button handler (3 states)
-            async handleMainButton() {
+            // ==================== TOP BUTTON ====================
+
+            handleTopButton() {
                 switch (this.state.phase) {
                     case 'upload':
-                        await this.uploadDNA();
+                        this.uploadDNA();
                         break;
                     case 'generate':
-                        await this.generateMusic();
+                        this.generateMusic();
                         break;
                     case 'play':
-                        this.togglePlayOriginal();
+                        AudioPlayer.toggleOriginal();
                         break;
                 }
             },
 
-            // Upload DNA (uses random for demo)
-            async uploadDNA() {
-                // Generate random DNA for demo
+            uploadDNA() {
+                // Generate random DNA for now (can add file picker later)
                 const length = Math.floor(Math.random() * 60 + 40) * 3;
                 this.state.dnaSequence = DNAEngine.generateRealisticDNA(length);
 
+                const analysis = DNAEngine.analyze(this.state.dnaSequence);
+                this.setStatus(`${this.state.dnaSequence.length} bases | GC: ${analysis.gcFormatted}% | ${analysis.modeName}`);
                 this.showToast(`Loaded ${this.state.dnaSequence.length} bases`, 'success');
 
                 // Move to generate phase
                 this.state.phase = 'generate';
-                this.elements.btnMain.textContent = 'Generate';
+                this.elements.btnTop.textContent = 'Generate';
             },
 
-            // Generate music from DNA
             async generateMusic() {
                 if (!this.state.dnaSequence) {
                     this.showToast('No DNA loaded', 'error');
                     return;
                 }
 
-                // Stop any playing audio
                 AudioPlayer.stopAll();
-
                 this.state.isGenerating = true;
-                this.elements.btnMain.textContent = 'Generating...';
-                this.elements.btnMain.disabled = true;
+                this.elements.btnTop.textContent = 'Generating...';
+                this.elements.btnTop.disabled = true;
+                this.setStatus('Generating your Lifesong...');
 
                 try {
                     const result = await APIClient.generateMusic(this.state.dnaSequence, 45);
@@ -695,31 +732,28 @@
                         this.state.mp3Filename = result.filename;
                         AudioPlayer.setOriginalFile(result.filename);
 
-                        // Move to play phase
                         this.state.phase = 'play';
-                        this.elements.btnMain.textContent = 'Play';
+                        this.elements.btnTop.textContent = 'Play';
                         this.elements.btnCreate.disabled = false;
 
+                        const a = result.analysis;
+                        this.setStatus(`${a.key} ${a.mode} | ${a.tempo} BPM | ${a.codon_count} codons`);
                         this.showToast('Music generated!', 'success');
                     } else {
                         throw new Error(result.error || 'Generation failed');
                     }
                 } catch (error) {
                     this.showToast(`Error: ${error.message}`, 'error');
-                    this.elements.btnMain.textContent = 'Generate';
+                    this.elements.btnTop.textContent = 'Generate';
+                    this.setStatus('');
                 } finally {
                     this.state.isGenerating = false;
-                    this.elements.btnMain.disabled = false;
+                    this.elements.btnTop.disabled = false;
                 }
             },
 
-            // Toggle play original
-            togglePlayOriginal() {
-                const playing = AudioPlayer.toggleOriginal();
-                this.elements.btnMain.textContent = playing ? 'Stop' : 'Play';
-            },
+            // ==================== GRID BUTTONS ====================
 
-            // Handle grid button clicks
             handleGridButton(btn) {
                 const type = btn.dataset.type;
                 const value = btn.dataset.value;
@@ -740,23 +774,25 @@
                 if (type === 'vocal') this.state.vocalType = value;
             },
 
-            // Handle create button (Create/Cancel/Play)
-            async handleCreateButton() {
+            // ==================== CREATE / CANCEL ====================
+
+            handleCreateButton() {
                 if (this.state.coverReady) {
-                    // Play/stop cover
-                    const playing = AudioPlayer.toggleCover();
-                    this.elements.btnCreate.textContent = playing ? 'Stop' : 'Play';
-                } else if (this.state.isCreatingCover) {
-                    // Cancel
-                    this.state.cancelRequested = true;
-                    this.elements.btnCreate.textContent = 'Cancelling...';
+                    // Toggle play cover
+                    AudioPlayer.toggleCover();
                 } else {
-                    // Create cover
-                    await this.createCover();
+                    this.createCover();
                 }
             },
 
-            // Create AI cover
+            handleCancelButton() {
+                if (this.state.isCreatingCover) {
+                    this.state.cancelRequested = true;
+                    this.elements.btnCancel.textContent = 'Cancelling...';
+                    this.setStatus('Cancelling...');
+                }
+            },
+
             async createCover() {
                 if (!this.state.mp3Path) {
                     this.showToast('Generate music first!', 'error');
@@ -765,34 +801,41 @@
 
                 this.state.isCreatingCover = true;
                 this.state.cancelRequested = false;
-                this.elements.btnCreate.textContent = 'Cancel';
-                this.elements.btnCreate.classList.add('cancel-state');
 
-                // Build prompt from selections
+                this.elements.btnCreate.disabled = true;
+                this.elements.btnCreate.textContent = 'Creating...';
+                this.elements.btnCreate.classList.add('cancel-state');
+                this.elements.btnCancel.disabled = false;
+                this.elements.btnCancel.classList.add('active');
+
                 const prompt = this.buildPrompt();
                 const tags = 'ambient, electronic, ethereal, dna, organic';
 
                 try {
                     // Upload
+                    this.setStatus('Uploading MP3...');
                     const uploadResult = await APIClient.uploadToMusicAPI(this.state.mp3Path);
                     if (!uploadResult.success) throw new Error(uploadResult.error);
                     if (this.state.cancelRequested) throw new Error('Cancelled');
 
-                    // Create cover
+                    // Create
+                    this.setStatus('Creating AI cover...');
                     const createResult = await APIClient.createCover(uploadResult.clip_id, prompt, tags);
                     if (!createResult.success) throw new Error(createResult.error);
                     if (this.state.cancelRequested) throw new Error('Cancelled');
 
-                    // Wait for completion
+                    // Wait
+                    this.setStatus('Waiting for AI (2-3 min)...');
                     const waitResult = await APIClient.waitForCover(
                         createResult.task_id,
-                        (progress) => {}, // Could animate egg ring here
+                        (progress) => this.setStatus(`Processing... ${Math.round(progress)}%`),
                         () => this.state.cancelRequested
                     );
 
                     if (!waitResult.audio_url) throw new Error('No audio URL');
 
                     // Download
+                    this.setStatus('Downloading cover...');
                     const downloadResult = await APIClient.downloadCover(waitResult.audio_url);
                     if (!downloadResult.success) throw new Error(downloadResult.error);
 
@@ -802,29 +845,38 @@
                     this.state.coverReady = true;
                     AudioPlayer.setCoverFile(downloadResult.filename);
 
-                    this.elements.btnCreate.textContent = 'Play';
+                    this.elements.btnCreate.textContent = 'Play Cover';
                     this.elements.btnCreate.classList.remove('cancel-state');
                     this.elements.btnCreate.classList.add('play-state');
+                    this.elements.btnCreate.disabled = false;
 
                     this.elements.btnDownload.disabled = false;
                     this.elements.btnDownload.classList.add('ready');
 
-                    this.showToast('Cover created!', 'success');
+                    this.setStatus('Cover ready!');
+                    this.showToast('AI cover created!', 'success');
 
                 } catch (error) {
                     if (error.message === 'Cancelled') {
+                        this.setStatus('Cancelled');
                         this.showToast('Cancelled', 'info');
                     } else {
+                        this.setStatus('Error: ' + error.message);
                         this.showToast(`Error: ${error.message}`, 'error');
                     }
                     this.elements.btnCreate.textContent = 'Create';
                     this.elements.btnCreate.classList.remove('cancel-state');
+                    this.elements.btnCreate.disabled = false;
                 } finally {
                     this.state.isCreatingCover = false;
+                    this.elements.btnCancel.disabled = true;
+                    this.elements.btnCancel.classList.remove('active');
+                    this.elements.btnCancel.textContent = 'Cancel';
                 }
             },
 
-            // Build prompt from selections
+            // ==================== HELPERS ====================
+
             buildPrompt() {
                 const moodTags = {
                     'meditative': '[meditative, ambient, atmospheric, slow tempo, no drums]',
@@ -843,15 +895,35 @@
                 if (this.state.mood) prompt += moodTags[this.state.mood] + ' ';
 
                 if (this.state.vocalType === 'none' || !this.state.vocalType) {
-                    prompt += '[instrumental, no vocals]';
+                    prompt += '[instrumental, no vocals, no singing, no voice]';
                 } else {
-                    prompt += `[${this.state.vocalType} vocals, vocalise]`;
+                    prompt += `[${this.state.vocalType} vocals, vocalise, wordless vocals]`;
                 }
 
                 return prompt;
             },
 
-            // Download song
+            onFileSelected(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const sequence = DNAEngine.parseFasta(content);
+                    this.state.dnaSequence = sequence;
+
+                    const analysis = DNAEngine.analyze(sequence);
+                    this.setStatus(`${sequence.length} bases | GC: ${analysis.gcFormatted}%`);
+                    this.showToast(`Loaded ${sequence.length} bases from ${file.name}`, 'success');
+
+                    this.state.phase = 'generate';
+                    this.elements.btnTop.textContent = 'Generate';
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            },
+
             downloadSong() {
                 const filename = this.state.coverFilename || this.state.mp3Filename;
                 if (!filename) {
@@ -866,11 +938,15 @@
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-
                 this.showToast('Downloading...', 'success');
             },
 
-            // Toast notification
+            setStatus(text) {
+                if (this.elements.statusText) {
+                    this.elements.statusText.textContent = text;
+                }
+            },
+
             showToast(message, type = 'info') {
                 const toast = document.createElement('div');
                 toast.className = `toast ${type}`;
@@ -887,6 +963,17 @@
 
         // Initialize when DOM ready
         document.addEventListener('DOMContentLoaded', () => EggApp.init());
+    </script>
+
+    <!-- Register Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('SW registration failed:', err));
+            });
+        }
     </script>
 </body>
 </html>
