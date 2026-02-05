@@ -380,26 +380,35 @@ def api_download_file(filename):
 # ==================== Main ====================
 
 if __name__ == '__main__':
-    # Use Railway's PORT or default to 8080 for local dev
-    port = int(os.environ.get('PORT', 8080))
-    is_production = os.environ.get('RAILWAY_ENVIRONMENT') is not None
+    import sys
+    sys.stdout.flush()
 
-    print("=" * 50)
-    print(f"🧬 DNA LIFESONG STUDIO v{VERSION}")
-    print("=" * 50)
-    print(f"📁 Output directory: {OUTPUT_DIR}")
-    print(f"🌐 Server: http://127.0.0.1:{port}")
-    print("=" * 50)
-    print("\n🔒 Security Status:")
-    print(f"   CORS: {ALLOWED_ORIGINS}")
-    print(f"   User Key: {'ENABLED' if USER_ACCESS_KEY else 'DISABLED (dev mode)'}")
-    print(f"   MusicAPI: {'CONFIGURED' if MUSICAPI_KEY else 'NOT SET (covers disabled)'}")
-    print(f"   Rate Limit: {RATE_LIMIT} req/min per IP")
-    print("=" * 50)
+    try:
+        # Use Railway's PORT or default to 8080 for local dev
+        port = int(os.environ.get('PORT', 8080))
+        is_production = os.environ.get('RAILWAY_ENVIRONMENT') is not None
 
-    if is_production:
-        print("\n🚀 Running in PRODUCTION mode\n")
-        app.run(debug=False, port=port, host='0.0.0.0')
-    else:
-        print(f"\nOpen your browser to: http://127.0.0.1:{port}\n")
-        app.run(debug=True, port=port, host='0.0.0.0')
+        print("=" * 50, flush=True)
+        print(f"DNA LIFESONG STUDIO v{VERSION}", flush=True)
+        print("=" * 50, flush=True)
+        print(f"Output directory: {OUTPUT_DIR}", flush=True)
+        print(f"Server port: {port}", flush=True)
+        print(f"CORS: {ALLOWED_ORIGINS}", flush=True)
+        print(f"User Key: {'ENABLED' if USER_ACCESS_KEY else 'DISABLED (dev mode)'}", flush=True)
+        print(f"MusicAPI: {'CONFIGURED' if MUSICAPI_KEY else 'NOT SET (covers disabled)'}", flush=True)
+        print(f"Rate Limit: {RATE_LIMIT} req/min per IP", flush=True)
+        print(f"Frontend dir: {FRONTEND_DIR}", flush=True)
+        print(f"Frontend exists: {os.path.isdir(FRONTEND_DIR)}", flush=True)
+        print("=" * 50, flush=True)
+
+        if is_production:
+            print("Running in PRODUCTION mode", flush=True)
+            app.run(debug=False, port=port, host='0.0.0.0')
+        else:
+            print(f"Open your browser to: http://127.0.0.1:{port}", flush=True)
+            app.run(debug=True, port=port, host='0.0.0.0')
+    except Exception as e:
+        print(f"FATAL ERROR: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        sys.stdout.flush()
