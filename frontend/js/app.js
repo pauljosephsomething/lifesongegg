@@ -619,7 +619,7 @@ const App = {
         const styleTags = {
             'electronic': '[electronic]',
             'folk': '[indie folk]',
-            'classical': '[modern classical]'
+            'classical': '[classical, orchestral, philharmonic]'
         };
 
         let prompt = '';
