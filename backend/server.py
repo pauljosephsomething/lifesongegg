@@ -344,6 +344,44 @@ def api_download():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/upload-mp3', methods=['POST'])
+@rate_limited
+def api_upload_mp3():
+    """Upload user's own MP3 file for AI cover creation"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No file provided'}), 400
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'No file selected'}), 400
+
+        # Validate file extension
+        if not file.filename.lower().endswith('.mp3'):
+            return jsonify({'success': False, 'error': 'Only MP3 files are allowed'}), 400
+
+        # Generate unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_name = ''.join(c for c in file.filename if c.isalnum() or c in '._-')
+        filename = f'upload_{timestamp}_{safe_name}'
+        file_path = os.path.join(OUTPUT_DIR, filename)
+
+        # Save the file
+        file.save(file_path)
+        print(f"Uploaded MP3 saved: {file_path}", flush=True)
+
+        return jsonify({
+            'success': True,
+            'path': file_path,
+            'filename': filename
+        })
+
+    except Exception as e:
+        print(f"Upload error: {e}", flush=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/download-file/<filename>')
 @rate_limited
 def api_download_file(filename):

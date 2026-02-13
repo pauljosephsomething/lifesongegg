@@ -16,7 +16,8 @@ const App = {
         isGenerating: false,
         isCreatingCover: false,
         cancelRequested: false,
-        isLoggedIn: false
+        isLoggedIn: false,
+        isUploadedMp3: false  // true if user uploaded their own MP3
     },
 
     // DOM Elements (cached on init)
@@ -179,6 +180,8 @@ const App = {
 
             // Other
             fileInput: document.getElementById('fileInput'),
+            mp3FileInput: document.getElementById('mp3FileInput'),
+            uploadMp3Btn: document.getElementById('uploadMp3Btn'),
             settingsBtn: document.getElementById('settingsBtn'),
             settingsModal: document.getElementById('settingsModal'),
             userKeyInput: document.getElementById('userKeyInput'),
@@ -204,6 +207,10 @@ const App = {
 
         // File input change
         this.elements.fileInput.addEventListener('change', (e) => this.onFileSelected(e));
+
+        // MP3 upload
+        this.elements.uploadMp3Btn.addEventListener('click', () => this.elements.mp3FileInput.click());
+        this.elements.mp3FileInput.addEventListener('change', (e) => this.onMp3FileSelected(e));
 
         // Duration slider
         this.elements.durationSlider.addEventListener('input', () => this.onDurationChange());
@@ -405,6 +412,77 @@ const App = {
 
         // Reset input so same file can be loaded again
         event.target.value = '';
+    },
+
+    /**
+     * Handle MP3 file selection (user uploading their own MP3)
+     */
+    async onMp3FileSelected(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.includes('audio/mpeg') && !file.name.endsWith('.mp3')) {
+            this.showToast('Please select an MP3 file', 'error');
+            return;
+        }
+
+        // Show uploading state
+        this.elements.uploadMp3Btn.innerHTML = '<span class="btn-emoji">⏳</span> Uploading...';
+        this.elements.uploadMp3Btn.disabled = true;
+
+        try {
+            // Create FormData and upload
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('/api/upload-mp3', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Store file info
+                this.state.mp3Path = result.path;
+                this.state.mp3Filename = result.filename;
+                this.state.isUploadedMp3 = true;
+                AudioPlayer.setOriginalFile(result.filename);
+
+                // Show success in analysis area
+                this.elements.analysisContent.innerHTML = `
+                    <div class="analysis-grid">
+                        <div class="analysis-item" style="grid-column: span 3;">
+                            <span class="analysis-label">Uploaded File</span>
+                            <span class="analysis-value">${file.name}</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px; font-size: 0.65rem; opacity: 0.6;">Ready for AI cover creation</div>
+                `;
+                this.elements.analysisResult.classList.remove('hidden');
+
+                // Enable buttons
+                this.elements.playOriginalBtn.disabled = false;
+                this.elements.downloadOriginalBtn.disabled = false;
+                this.elements.createCoverBtn.disabled = false;
+
+                // Update Step 2 status
+                this.elements.step2Status.innerHTML = '<span class="status-icon">✓</span><span class="status-text">Ready for AI cover generation</span>';
+                this.elements.step2Status.classList.remove('pending');
+                this.elements.step2Status.classList.add('ready');
+
+                this.showToast(`Uploaded: ${file.name}`, 'success');
+            } else {
+                throw new Error(result.error || 'Upload failed');
+            }
+        } catch (error) {
+            this.showToast(`Upload failed: ${error.message}`, 'error');
+        } finally {
+            this.elements.uploadMp3Btn.innerHTML = '<span class="btn-emoji">🎵</span> Upload Your MP3';
+            this.elements.uploadMp3Btn.disabled = false;
+            event.target.value = ''; // Reset input
+        }
     },
 
     /**

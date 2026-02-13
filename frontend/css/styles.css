@@ -433,6 +433,39 @@ body {
     font-size: 1rem;
 }
 
+.btn-wide {
+    grid-column: span 4;
+}
+
+/* Divider with "OR" text */
+.divider-or {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 12px 0;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.divider-or::before,
+.divider-or::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.divider-or span {
+    padding: 0 12px;
+}
+
+@media (max-width: 600px) {
+    .btn-wide {
+        grid-column: span 2;
+    }
+}
+
 .action-row {
     display: flex;
     gap: 10px;

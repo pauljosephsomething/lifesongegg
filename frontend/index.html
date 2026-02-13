@@ -95,6 +95,16 @@
                     </button>
                 </div>
 
+                <div class="divider-or">
+                    <span>OR</span>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn-icon btn-wide" id="uploadMp3Btn" title="Upload your own MP3">
+                        <span class="btn-emoji">🎵</span> Upload Your MP3
+                    </button>
+                </div>
+
                 <div class="field-group">
                     <label class="field-label">Duration: <span id="durationValue">45</span> seconds</label>
                     <input type="range" id="durationSlider" class="slider" min="15" max="120" value="45">
@@ -238,6 +248,9 @@
 
     <!-- Hidden file input for loading DNA files -->
     <input type="file" id="fileInput" accept=".txt,.fasta,.fa" class="hidden">
+
+    <!-- Hidden file input for MP3 upload -->
+    <input type="file" id="mp3FileInput" accept=".mp3,audio/mpeg" class="hidden">
 
     <!-- JavaScript Modules -->
     <script src="js/dna-engine.js"></script>
