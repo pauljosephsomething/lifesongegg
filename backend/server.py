@@ -39,7 +39,8 @@ USER_ACCESS_KEY = os.environ.get('LIFESONG_USER_KEY', None)
 
 # Your MusicAPI key - stored securely on the server, users never see this
 # IMPORTANT: Set this via environment variable in production!
-MUSICAPI_KEY = os.environ.get('MUSICAPI_KEY', None)
+_musicapi_key = os.environ.get('MUSICAPI_KEY', None)
+MUSICAPI_KEY = _musicapi_key.strip() if _musicapi_key else None
 
 # Rate limiting: max requests per IP per minute
 RATE_LIMIT = int(os.environ.get('RATE_LIMIT', 30))
